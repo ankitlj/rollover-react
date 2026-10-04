@@ -52,7 +52,7 @@ interface StoreActions {
 const StoreContext = createContext<(StoreState & StoreActions) | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const hasSession = !!sessionStorage.getItem('rs-session');
+  //const hasSession = !!sessionStorage.getItem('rs-session');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [logEntries, setLogEntries] = useState<LogEntry[]>(createInitialLogEntries);
   const [corrections, setCorrections] = useState<Correction[]>([]);
