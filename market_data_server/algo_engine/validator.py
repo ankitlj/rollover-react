@@ -18,7 +18,7 @@ class TickValidator:
         with self._lock:
             prev_ts = self._prev_ts.get(tick.token)
 
-            if tick.ltp <= 0:
+            if not (tick.ltp > 0):
                 self._rejected_count += 1
                 self._rejected_by_reason["ltp_zero"] += 1
                 return False, "ltp_zero"

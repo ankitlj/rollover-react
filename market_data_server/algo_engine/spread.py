@@ -126,6 +126,11 @@ class SpreadEngine:
                     del self._skip_reasons[stock]
             return snapshot
 
+        if initial_spread == 0:
+            with self._lock:
+                self._skip_reasons[stock] = "zero_initial_spread"
+            return None
+
         discount_pct = (initial_spread - spread) / initial_spread * 100
 
         now_ist = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
