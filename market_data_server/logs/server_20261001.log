@@ -1,0 +1,65 @@
+2026-10-01 11:20:46.992 [MainThread  ] main           INFO  ============================================================
+2026-10-01 11:20:46.993 [MainThread  ] main           INFO  ROLLOVER MARKET DATA SERVER
+2026-10-01 11:20:46.993 [MainThread  ] main           INFO  Date: 2026-10-01 11:20:46 IST
+2026-10-01 11:20:46.993 [MainThread  ] main           INFO  Stocks: 19 | Total instruments: 57
+2026-10-01 11:20:46.993 [MainThread  ] main           INFO  Market hours: 09:20 - 15:00 IST
+2026-10-01 11:20:46.993 [MainThread  ] main           INFO  WebSocket: ws://127.0.0.1:8765
+2026-10-01 11:20:46.993 [MainThread  ] main           INFO  ============================================================
+2026-10-01 11:20:46.994 [MainThread  ] main           ERROR Arrow credentials not set. Set environment variables: ARROW_APP_ID, ARROW_APP_SECRET, ARROW_USER_ID, ARROW_PASSWORD, ARROW_TOTP_SECRET
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  ============================================================
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  ROLLOVER MARKET DATA SERVER
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  Date: 2026-10-01 11:36:19 IST
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  Stocks: 19 | Total instruments: 57
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  Market hours: 09:20 - 15:00 IST
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  WebSocket: ws://127.0.0.1:8765
+2026-10-01 11:36:19.973 [MainThread  ] main           INFO  ============================================================
+2026-10-01 11:36:19.975 [MainThread  ] daily_reporter INFO  DailyReporter started
+2026-10-01 11:36:19.975 [MainThread  ] main           INFO  Step 1/4: Logging into Arrow...
+2026-10-01 11:36:20.942 [MainThread  ] arrow_connector INFO  Login OK: ANKIT ANAND SHARMA (token expires at AG5406)
+2026-10-01 11:36:20.942 [MainThread  ] main           INFO  Step 2/4: Resolving instruments...
+2026-10-01 11:36:25.608 [MainThread  ] arrow_connector INFO  Loaded 192029 instruments from master
+2026-10-01 11:36:25.719 [MainThread  ] arrow_connector INFO  Future expiries: current=27-Oct-2026, next=23-Nov-2026
+2026-10-01 11:36:26.291 [MainThread  ] arrow_connector INFO  Resolved 57/57 tokens
+2026-10-01 11:36:26.406 [MainThread  ] main           INFO  Step 3/4: Starting WebSocket server...
+2026-10-01 11:36:26.406 [MainThread  ] ws_server      INFO  WebSocket server thread starting on 127.0.0.1:8765
+2026-10-01 11:36:26.489 [ws-server   ] websockets.server INFO  server listening on 127.0.0.1:8765
+2026-10-01 11:36:26.489 [ws-server   ] ws_server      INFO  WebSocket server listening on ws://127.0.0.1:8765
+2026-10-01 11:36:27.407 [MainThread  ] main           INFO  Step 4/4: Connecting Arrow data stream...
+2026-10-01 11:36:27.409 [MainThread  ] arrow_connector INFO  Feed state: DISCONNECTED -> CONNECTING  (connecting data stream)
+2026-10-01 11:36:27.410 [MainThread  ] main           INFO  ALL SYSTEMS RUNNING
+2026-10-01 11:36:27.410 [MainThread  ] main           INFO    WebSocket: ws://127.0.0.1:8765
+2026-10-01 11:36:27.410 [MainThread  ] main           INFO    Reports: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\reports
+2026-10-01 11:36:27.410 [MainThread  ] main           INFO    Logs: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\logs
+2026-10-01 11:36:27.502 [Thread-1 (run_forever)] websocket      INFO  Websocket connected
+2026-10-01 11:36:27.502 [Thread-1 (run_forever)] arrow_connector INFO  WebSocket CONNECTED
+2026-10-01 11:36:27.502 [Thread-1 (run_forever)] arrow_connector INFO  Feed state: CONNECTING -> CONNECTED  (ws connected)
+2026-10-01 11:36:27.504 [Thread-1 (run_forever)] pyarrow_client.sockets INFO  Subscribed to 57 tokens in full mode
+2026-10-01 11:36:27.504 [Thread-1 (run_forever)] arrow_connector INFO  Subscribed 57 tokens to DataMode.FULL
+2026-10-01 11:36:27.504 [Thread-1 (run_forever)] arrow_connector INFO  Feed state: CONNECTED -> WAITING_FOR_FRESH_BOOKS  (waiting for first ticks)
+2026-10-01 11:36:27.504 [Thread-1 (run_forever)] pyarrow_client.sockets INFO  DataStream connected
+2026-10-01 11:36:27.504 [Thread-1 (run_forever)] pyarrow_client.sockets INFO  Subscribed to 57 tokens in full mode
+2026-10-01 11:36:27.523 [Thread-1 (run_forever)] arrow_connector INFO  Price scale verified: paise (LTP raw=117540)
+2026-10-01 11:36:27.527 [Thread-1 (run_forever)] arrow_connector INFO  Feed state: WAITING_FOR_FRESH_BOOKS -> HEALTHY  (46/57 tokens have fresh data)
+2026-10-01 11:36:28.411 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=180 | gaps=0 errors=0 | clients=0
+2026-10-01 11:36:58.436 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=2414 | gaps=0 errors=0 | clients=0
+2026-10-01 11:37:28.462 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=4679 | gaps=0 errors=0 | clients=0
+2026-10-01 11:37:58.482 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=6885 | gaps=0 errors=0 | clients=0
+2026-10-01 11:38:28.498 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=9069 | gaps=0 errors=0 | clients=0
+2026-10-01 11:38:58.515 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=11247 | gaps=1 errors=0 | clients=0
+2026-10-01 11:39:28.533 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=56 stale=1 | ticks=13436 | gaps=1 errors=0 | clients=0
+2026-10-01 11:39:58.548 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=15601 | gaps=1 errors=0 | clients=0
+2026-10-01 11:40:28.559 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=17730 | gaps=1 errors=0 | clients=0
+2026-10-01 11:40:58.587 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=56 stale=1 | ticks=19850 | gaps=2 errors=0 | clients=0
+2026-10-01 11:41:28.606 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=56 stale=1 | ticks=21994 | gaps=3 errors=0 | clients=0
+2026-10-01 11:41:58.626 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=56 stale=1 | ticks=24109 | gaps=3 errors=0 | clients=0
+2026-10-01 11:42:28.649 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=26307 | gaps=3 errors=0 | clients=0
+2026-10-01 11:42:58.666 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=28521 | gaps=3 errors=0 | clients=0
+2026-10-01 11:43:28.695 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=30708 | gaps=3 errors=0 | clients=0
+2026-10-01 11:43:58.709 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=32836 | gaps=3 errors=0 | clients=0
+2026-10-01 11:44:28.729 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=35039 | gaps=3 errors=0 | clients=0
+2026-10-01 11:44:58.747 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=37280 | gaps=3 errors=0 | clients=0
+2026-10-01 11:45:28.770 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=39461 | gaps=3 errors=0 | clients=0
+2026-10-01 11:45:58.789 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=41682 | gaps=3 errors=0 | clients=0
+2026-10-01 11:46:28.810 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=43869 | gaps=4 errors=0 | clients=0
+2026-10-01 11:46:58.838 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=56 stale=1 | ticks=46086 | gaps=4 errors=0 | clients=0
+2026-10-01 11:47:28.870 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=48292 | gaps=4 errors=0 | clients=0

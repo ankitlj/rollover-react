@@ -1,0 +1,178 @@
+2026-09-30 09:27:56.941 [MainThread  ] main           INFO  ============================================================
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  ROLLOVER MARKET DATA SERVER
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  Date: 2026-09-30 09:27:56 IST
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  Stocks: 19 | Total instruments: 57
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  Market hours: 09:20 - 15:00 IST
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  WebSocket: ws://127.0.0.1:8765
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  ============================================================
+2026-09-30 09:27:56.943 [MainThread  ] daily_reporter INFO  DailyReporter started
+2026-09-30 09:27:56.943 [MainThread  ] main           INFO  Step 1/4: Logging into Arrow...
+2026-09-30 09:27:58.190 [MainThread  ] arrow_connector INFO  Login OK: ANKIT ANAND SHARMA (token expires at AG5406)
+2026-09-30 09:27:58.190 [MainThread  ] main           INFO  Step 2/4: Resolving instruments...
+2026-09-30 09:28:04.310 [MainThread  ] arrow_connector INFO  Loaded 196357 instruments from master
+2026-09-30 09:28:04.350 [MainThread  ] arrow_connector INFO  Future expiries: current=27-Oct-2026, next=23-Nov-2026
+2026-09-30 09:28:04.621 [MainThread  ] arrow_connector INFO  Resolved 57/57 tokens
+2026-09-30 09:28:04.740 [MainThread  ] main           INFO  Step 3/4: Starting WebSocket server...
+2026-09-30 09:28:04.742 [MainThread  ] ws_server      INFO  WebSocket server thread starting on 127.0.0.1:8765
+2026-09-30 09:28:04.836 [ws-server   ] websockets.server INFO  server listening on 127.0.0.1:8765
+2026-09-30 09:28:04.836 [ws-server   ] ws_server      INFO  WebSocket server listening on ws://127.0.0.1:8765
+2026-09-30 09:28:05.744 [MainThread  ] main           INFO  Step 4/4: Connecting Arrow data stream...
+2026-09-30 09:28:05.758 [MainThread  ] arrow_connector INFO  Feed state: DISCONNECTED -> CONNECTING  (connecting data stream)
+2026-09-30 09:28:05.758 [MainThread  ] main           INFO  ALL SYSTEMS RUNNING
+2026-09-30 09:28:05.758 [MainThread  ] main           INFO    WebSocket: ws://127.0.0.1:8765
+2026-09-30 09:28:05.758 [MainThread  ] main           INFO    Reports: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\reports
+2026-09-30 09:28:05.758 [MainThread  ] main           INFO    Logs: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\logs
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] websocket      INFO  Websocket connected
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] arrow_connector INFO  WebSocket CONNECTED
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] arrow_connector INFO  Feed state: CONNECTING -> CONNECTED  (ws connected)
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] pyarrow_client.sockets INFO  Subscribed to 57 tokens in full mode
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] arrow_connector INFO  Subscribed 57 tokens to DataMode.FULL
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] arrow_connector INFO  Feed state: CONNECTED -> WAITING_FOR_FRESH_BOOKS  (waiting for first ticks)
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] pyarrow_client.sockets INFO  DataStream connected
+2026-09-30 09:28:05.870 [Thread-1 (run_forever)] pyarrow_client.sockets INFO  Subscribed to 57 tokens in full mode
+2026-09-30 09:28:05.936 [Thread-1 (run_forever)] arrow_connector INFO  Price scale verified: paise (LTP raw=119440)
+2026-09-30 09:28:05.939 [Thread-1 (run_forever)] arrow_connector INFO  Feed state: WAITING_FOR_FRESH_BOOKS -> HEALTHY  (46/57 tokens have fresh data)
+2026-09-30 09:28:06.761 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=180 | gaps=0 errors=0 | clients=0
+2026-09-30 09:28:36.813 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=2694 | gaps=0 errors=0 | clients=0
+2026-09-30 09:29:06.874 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=5178 | gaps=0 errors=0 | clients=0
+2026-09-30 09:29:36.902 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=7656 | gaps=0 errors=0 | clients=0
+2026-09-30 09:30:06.928 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=10194 | gaps=0 errors=0 | clients=0
+2026-09-30 09:30:36.949 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=12746 | gaps=0 errors=0 | clients=0
+2026-09-30 09:31:06.972 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=15201 | gaps=0 errors=0 | clients=0
+2026-09-30 09:31:37.022 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=17688 | gaps=0 errors=0 | clients=0
+2026-09-30 09:32:07.050 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=20136 | gaps=0 errors=0 | clients=0
+2026-09-30 09:32:37.075 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=22567 | gaps=0 errors=0 | clients=0
+2026-09-30 09:33:07.097 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=25006 | gaps=0 errors=0 | clients=0
+2026-09-30 09:33:37.206 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=27575 | gaps=0 errors=0 | clients=0
+2026-09-30 09:34:07.223 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=29978 | gaps=0 errors=0 | clients=0
+2026-09-30 09:34:37.252 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=32392 | gaps=0 errors=0 | clients=0
+2026-09-30 09:35:07.319 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=34804 | gaps=0 errors=0 | clients=0
+2026-09-30 09:35:37.635 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=37243 | gaps=0 errors=0 | clients=0
+2026-09-30 09:36:07.802 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=39680 | gaps=0 errors=0 | clients=0
+2026-09-30 09:36:37.822 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=42114 | gaps=0 errors=0 | clients=0
+2026-09-30 09:37:07.836 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=44495 | gaps=0 errors=0 | clients=0
+2026-09-30 09:37:37.852 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=46918 | gaps=0 errors=0 | clients=0
+2026-09-30 09:38:07.871 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=49297 | gaps=0 errors=0 | clients=0
+2026-09-30 09:38:37.898 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=51701 | gaps=0 errors=0 | clients=0
+2026-09-30 09:39:07.967 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=54116 | gaps=0 errors=0 | clients=0
+2026-09-30 09:39:38.000 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=56470 | gaps=0 errors=0 | clients=0
+2026-09-30 09:40:08.028 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=58878 | gaps=0 errors=0 | clients=0
+2026-09-30 09:40:38.057 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=61239 | gaps=0 errors=0 | clients=0
+2026-09-30 09:41:08.075 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=63586 | gaps=0 errors=0 | clients=0
+2026-09-30 09:41:38.101 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=65915 | gaps=0 errors=0 | clients=0
+2026-09-30 09:42:08.162 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=68269 | gaps=0 errors=0 | clients=0
+2026-09-30 09:42:38.184 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=70617 | gaps=0 errors=0 | clients=0
+2026-09-30 09:43:08.215 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=72988 | gaps=0 errors=0 | clients=0
+2026-09-30 09:43:38.238 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=75343 | gaps=0 errors=0 | clients=0
+2026-09-30 09:44:08.273 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=77704 | gaps=0 errors=0 | clients=0
+2026-09-30 09:44:38.308 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=80038 | gaps=0 errors=0 | clients=0
+2026-09-30 09:45:08.334 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=82397 | gaps=0 errors=0 | clients=0
+2026-09-30 09:45:38.445 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=84819 | gaps=0 errors=0 | clients=0
+2026-09-30 09:46:08.468 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=87200 | gaps=0 errors=0 | clients=0
+2026-09-30 09:46:38.492 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=89602 | gaps=0 errors=0 | clients=0
+2026-09-30 09:47:08.558 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=91995 | gaps=0 errors=0 | clients=0
+2026-09-30 09:47:38.578 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=94420 | gaps=0 errors=0 | clients=0
+2026-09-30 09:48:08.600 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=96846 | gaps=0 errors=0 | clients=0
+2026-09-30 09:48:38.628 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=99206 | gaps=0 errors=0 | clients=0
+2026-09-30 09:49:08.647 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=101571 | gaps=0 errors=0 | clients=0
+2026-09-30 09:49:38.668 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=103934 | gaps=0 errors=0 | clients=0
+2026-09-30 09:50:08.777 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=106310 | gaps=0 errors=0 | clients=0
+2026-09-30 09:50:38.825 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=108692 | gaps=0 errors=0 | clients=0
+2026-09-30 09:51:08.867 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=111040 | gaps=0 errors=0 | clients=0
+2026-09-30 09:51:38.884 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=113417 | gaps=0 errors=0 | clients=0
+2026-09-30 09:52:08.951 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=115838 | gaps=0 errors=0 | clients=0
+2026-09-30 09:52:38.989 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=118226 | gaps=0 errors=0 | clients=0
+2026-09-30 09:52:50.684 [ws-server   ] websockets.server INFO  connection open
+2026-09-30 09:52:50.685 [ws-server   ] ws_server      INFO  Frontend client connected: ('127.0.0.1', 58943)
+2026-09-30 09:52:50.685 [ws-server   ] websockets.server INFO  connection closed
+2026-09-30 09:52:50.685 [ws-server   ] ws_server      INFO  Frontend client disconnected: ('127.0.0.1', 58943)
+2026-09-30 09:53:08.901 [ws-server   ] websockets.server INFO  connection open
+2026-09-30 09:53:08.901 [ws-server   ] ws_server      INFO  Frontend client connected: ('127.0.0.1', 58954)
+2026-09-30 09:53:09.035 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=120627 | gaps=0 errors=0 | clients=1
+2026-09-30 09:53:18.929 [ws-server   ] websockets.server INFO  connection closed
+2026-09-30 09:53:18.929 [ws-server   ] ws_server      INFO  Frontend client disconnected: ('127.0.0.1', 58954)
+2026-09-30 09:53:39.056 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=122977 | gaps=0 errors=0 | clients=0
+2026-09-30 09:54:09.074 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=125375 | gaps=0 errors=0 | clients=0
+2026-09-30 09:54:39.105 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=127766 | gaps=0 errors=0 | clients=0
+2026-09-30 09:55:09.129 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=130170 | gaps=0 errors=0 | clients=0
+2026-09-30 09:55:39.163 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=132652 | gaps=0 errors=0 | clients=0
+2026-09-30 09:56:09.190 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=135062 | gaps=0 errors=0 | clients=0
+2026-09-30 09:56:39.215 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=137371 | gaps=0 errors=0 | clients=0
+2026-09-30 09:57:09.278 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=139747 | gaps=0 errors=0 | clients=0
+2026-09-30 09:57:39.299 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=142068 | gaps=0 errors=0 | clients=0
+2026-09-30 09:58:09.320 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=144384 | gaps=0 errors=0 | clients=0
+2026-09-30 09:58:39.354 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=146758 | gaps=0 errors=0 | clients=0
+2026-09-30 09:59:09.396 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=149166 | gaps=0 errors=0 | clients=0
+2026-09-30 09:59:39.416 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=151547 | gaps=0 errors=0 | clients=0
+2026-09-30 10:00:09.441 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=153967 | gaps=0 errors=0 | clients=0
+2026-09-30 10:00:39.472 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=156364 | gaps=0 errors=0 | clients=0
+2026-09-30 10:01:09.503 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=158711 | gaps=0 errors=0 | clients=0
+2026-09-30 10:01:39.522 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=161111 | gaps=0 errors=0 | clients=0
+2026-09-30 10:02:09.557 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=163509 | gaps=0 errors=0 | clients=0
+2026-09-30 10:02:39.579 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=165856 | gaps=0 errors=0 | clients=0
+2026-09-30 10:03:09.603 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=168197 | gaps=0 errors=0 | clients=0
+2026-09-30 10:03:39.646 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=170551 | gaps=0 errors=0 | clients=0
+2026-09-30 10:04:09.667 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=172913 | gaps=0 errors=0 | clients=0
+2026-09-30 10:04:39.702 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=175299 | gaps=0 errors=0 | clients=0
+2026-09-30 10:05:09.727 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=177659 | gaps=0 errors=0 | clients=0
+2026-09-30 10:05:39.750 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=180009 | gaps=0 errors=0 | clients=0
+2026-09-30 10:06:09.769 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=182434 | gaps=0 errors=0 | clients=0
+2026-09-30 10:06:39.799 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=184830 | gaps=0 errors=0 | clients=0
+2026-09-30 10:07:09.832 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=187196 | gaps=0 errors=0 | clients=0
+2026-09-30 10:07:39.876 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=189517 | gaps=0 errors=0 | clients=0
+2026-09-30 10:08:10.167 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=191895 | gaps=0 errors=0 | clients=0
+2026-09-30 10:08:40.185 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=194252 | gaps=0 errors=0 | clients=0
+2026-09-30 10:09:10.199 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=196586 | gaps=0 errors=0 | clients=0
+2026-09-30 10:09:40.231 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=198878 | gaps=0 errors=0 | clients=0
+2026-09-30 10:10:10.250 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=201233 | gaps=0 errors=0 | clients=0
+2026-09-30 10:10:40.278 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=203559 | gaps=0 errors=0 | clients=0
+2026-09-30 10:11:10.305 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=205843 | gaps=1 errors=0 | clients=0
+2026-09-30 10:11:40.373 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=208197 | gaps=1 errors=0 | clients=0
+2026-09-30 10:12:10.449 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=210544 | gaps=1 errors=0 | clients=0
+2026-09-30 10:12:40.470 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=212831 | gaps=1 errors=0 | clients=0
+2026-09-30 10:13:10.488 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=215136 | gaps=1 errors=0 | clients=0
+2026-09-30 10:13:40.506 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=217406 | gaps=1 errors=0 | clients=0
+2026-09-30 10:14:10.545 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=219693 | gaps=1 errors=0 | clients=0
+2026-09-30 10:14:40.589 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=222014 | gaps=1 errors=0 | clients=0
+2026-09-30 10:15:10.605 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=224361 | gaps=1 errors=0 | clients=0
+2026-09-30 10:15:40.653 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=226699 | gaps=1 errors=0 | clients=0
+2026-09-30 10:16:10.707 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=229044 | gaps=1 errors=0 | clients=0
+2026-09-30 10:16:40.766 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=231385 | gaps=1 errors=0 | clients=0
+2026-09-30 10:17:10.797 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=233709 | gaps=1 errors=0 | clients=0
+2026-09-30 10:17:40.815 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=236040 | gaps=1 errors=0 | clients=0
+2026-09-30 10:18:10.833 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=238375 | gaps=1 errors=0 | clients=0
+2026-09-30 10:18:40.884 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=240731 | gaps=1 errors=0 | clients=0
+2026-09-30 10:19:10.931 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=243115 | gaps=1 errors=0 | clients=0
+2026-09-30 10:19:40.953 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=245474 | gaps=1 errors=0 | clients=0
+2026-09-30 10:20:11.002 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=247799 | gaps=1 errors=0 | clients=0
+2026-09-30 10:20:41.042 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=249380 | gaps=1 errors=0 | clients=0
+2026-09-30 10:21:11.086 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=252581 | gaps=1 errors=0 | clients=0
+2026-09-30 10:21:41.111 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=254960 | gaps=1 errors=0 | clients=0
+2026-09-30 10:22:11.174 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=257384 | gaps=1 errors=0 | clients=0
+2026-09-30 10:22:41.272 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=259774 | gaps=1 errors=0 | clients=0
+2026-09-30 10:23:11.298 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=262102 | gaps=1 errors=0 | clients=0
+2026-09-30 10:23:41.343 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=264433 | gaps=1 errors=0 | clients=0
+2026-09-30 10:24:11.412 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=266798 | gaps=1 errors=0 | clients=0
+2026-09-30 10:24:41.438 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=269126 | gaps=1 errors=0 | clients=0
+2026-09-30 10:25:11.470 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=271453 | gaps=1 errors=0 | clients=0
+2026-09-30 10:25:41.498 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=273795 | gaps=1 errors=0 | clients=0
+2026-09-30 10:26:11.518 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=276128 | gaps=1 errors=0 | clients=0
+2026-09-30 10:26:41.562 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=278452 | gaps=1 errors=0 | clients=0
+2026-09-30 10:27:11.584 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=280757 | gaps=1 errors=0 | clients=0
+2026-09-30 10:27:41.660 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=283050 | gaps=1 errors=0 | clients=0
+2026-09-30 10:28:11.810 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=285413 | gaps=1 errors=0 | clients=0
+2026-09-30 10:28:41.925 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=287727 | gaps=1 errors=0 | clients=0
+2026-09-30 10:29:12.151 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=290079 | gaps=1 errors=0 | clients=0
+2026-09-30 10:29:42.176 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=292408 | gaps=1 errors=0 | clients=0
+2026-09-30 10:30:12.205 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=294717 | gaps=1 errors=0 | clients=0
+2026-09-30 10:30:42.239 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=297048 | gaps=1 errors=0 | clients=0
+2026-09-30 10:31:12.257 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=299338 | gaps=1 errors=0 | clients=0
+2026-09-30 10:31:42.276 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=301634 | gaps=1 errors=0 | clients=0
+2026-09-30 10:32:12.302 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=303959 | gaps=1 errors=0 | clients=0
+2026-09-30 10:32:42.326 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=306322 | gaps=1 errors=0 | clients=0
+2026-09-30 10:33:12.345 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=308663 | gaps=1 errors=0 | clients=0
+2026-09-30 10:33:42.363 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=311075 | gaps=1 errors=0 | clients=0
+2026-09-30 10:34:12.484 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=313501 | gaps=1 errors=0 | clients=0
+2026-09-30 10:34:42.559 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=315791 | gaps=1 errors=0 | clients=0
+2026-09-30 10:35:12.644 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=318174 | gaps=1 errors=0 | clients=0
+2026-09-30 10:35:42.674 [MainThread  ] main           INFO  STATUS | state=HEALTHY | instruments=57/57 | fresh=57 stale=0 | ticks=320516 | gaps=1 errors=0 | clients=0
