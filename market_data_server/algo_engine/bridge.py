@@ -103,6 +103,8 @@ class TickBridge:
     def _on_ticks(self, msg: dict):
         now_ns = time.monotonic_ns()
         for snap in (msg.get("data") or []):
+            if not isinstance(snap, dict):
+                continue
             token = snap.get("token")
             if token is None:
                 continue
@@ -120,7 +122,7 @@ class TickBridge:
                 volume=snap.get("volume", 0),
                 ltq=snap.get("ltq", 0),
                 oi=snap.get("oi", 0),
-                info=snap.get("info", {}),
+                info=snap.get("info") or {},
             )
             with self._lock:
                 self._ticks[token] = tick
