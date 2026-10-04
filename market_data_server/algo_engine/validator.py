@@ -1,6 +1,10 @@
+import re
 import threading
 from typing import Optional, Tuple, Dict
 from .bridge import Tick
+
+
+TS_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$")
 
 
 class TickValidator:
@@ -12,6 +16,7 @@ class TickValidator:
         self._rejected_by_reason: Dict[str, int] = {
             "ltp_zero": 0,
             "ts_backward": 0,
+            "ts_format": 0,
         }
 
     def check(self, tick: Tick) -> Tuple[bool, Optional[str]]:
@@ -23,12 +28,19 @@ class TickValidator:
                 self._rejected_by_reason["ltp_zero"] += 1
                 return False, "ltp_zero"
 
-            if prev_ts is not None and tick.ts and tick.ts <= prev_ts:
-                self._rejected_count += 1
-                self._rejected_by_reason["ts_backward"] += 1
-                return False, "ts_backward"
+            if tick.ts:
+                if not TS_PATTERN.match(tick.ts):
+                    self._rejected_count += 1
+                    self._rejected_by_reason["ts_format"] += 1
+                    return False, "ts_format"
 
-            self._prev_ts[tick.token] = tick.ts
+                if prev_ts is not None and tick.ts < prev_ts:
+                    self._rejected_count += 1
+                    self._rejected_by_reason["ts_backward"] += 1
+                    return False, "ts_backward"
+
+                self._prev_ts[tick.token] = tick.ts
+
             self._passed_count += 1
             return True, None
 

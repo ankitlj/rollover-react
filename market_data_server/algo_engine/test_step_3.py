@@ -10,6 +10,10 @@ from algo_engine.bridge import Tick, TickBridge
 from algo_engine.validator import TickValidator
 
 
+def ts(minute: int) -> str:
+    return f"2026-10-01 09:{minute:02d}:00.000"
+
+
 # ── Step 3: Validator Tests ────────────────────────────────────────────────
 
 
@@ -19,7 +23,7 @@ class TestValidatorInit(unittest.TestCase):
         v = TickValidator()
         self.assertEqual(v.passed_count, 0)
         self.assertEqual(v.rejected_count, 0)
-        self.assertEqual(v.rejected_by_reason, {"ltp_zero": 0, "ts_backward": 0})
+        self.assertEqual(v.rejected_by_reason, {"ltp_zero": 0, "ts_backward": 0, "ts_format": 0})
 
     def test_no_prev_ts_initially(self):
         v = TickValidator()
@@ -81,13 +85,13 @@ class TestTimestampValidation(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIsNone(reason)
 
-    def test_same_timestamp_rejected(self):
+    def test_same_timestamp_accepted(self):
         t1 = Tick(token=100, ltp=100.0, ts="2026-10-01 09:20:00.000", recv_mono_ns=0)
         t2 = Tick(token=100, ltp=101.0, ts="2026-10-01 09:20:00.000", recv_mono_ns=0)
         self.v.check(t1)
         ok, reason = self.v.check(t2)
-        self.assertFalse(ok)
-        self.assertEqual(reason, "ts_backward")
+        self.assertTrue(ok)
+        self.assertIsNone(reason)
 
     def test_backward_timestamp_rejected(self):
         t1 = Tick(token=100, ltp=100.0, ts="2026-10-01 09:21:00.000", recv_mono_ns=0)
@@ -141,10 +145,10 @@ class TestMultipleTokens(unittest.TestCase):
         self.assertTrue(ok2)
 
     def test_prev_ts_tracked_per_token(self):
-        self.v.check(Tick(token=100, ltp=100.0, ts="T1", recv_mono_ns=0))
-        self.v.check(Tick(token=200, ltp=200.0, ts="T2", recv_mono_ns=0))
-        self.assertEqual(self.v.get_prev_ts(100), "T1")
-        self.assertEqual(self.v.get_prev_ts(200), "T2")
+        self.v.check(Tick(token=100, ltp=100.0, ts=ts(20), recv_mono_ns=0))
+        self.v.check(Tick(token=200, ltp=200.0, ts=ts(21), recv_mono_ns=0))
+        self.assertEqual(self.v.get_prev_ts(100), ts(20))
+        self.assertEqual(self.v.get_prev_ts(200), ts(21))
         self.assertIsNone(self.v.get_prev_ts(300))
 
 
@@ -152,15 +156,15 @@ class TestProcessTick(unittest.TestCase):
 
     def test_returns_bool(self):
         v = TickValidator()
-        t_good = Tick(token=100, ltp=100.0, ts="T1", recv_mono_ns=0)
-        t_bad = Tick(token=100, ltp=0.0, ts="T2", recv_mono_ns=0)
+        t_good = Tick(token=100, ltp=100.0, ts=ts(20), recv_mono_ns=0)
+        t_bad = Tick(token=100, ltp=0.0, ts=ts(21), recv_mono_ns=0)
         self.assertTrue(v.process_tick(t_good))
         self.assertFalse(v.process_tick(t_bad))
 
     def test_process_tick_updates_state(self):
         v = TickValidator()
-        v.process_tick(Tick(token=100, ltp=100.0, ts="T1", recv_mono_ns=0))
-        v.process_tick(Tick(token=100, ltp=0.0, ts="T2", recv_mono_ns=0))
+        v.process_tick(Tick(token=100, ltp=100.0, ts=ts(20), recv_mono_ns=0))
+        v.process_tick(Tick(token=100, ltp=0.0, ts=ts(21), recv_mono_ns=0))
         self.assertEqual(v.passed_count, 1)
         self.assertEqual(v.rejected_count, 1)
 
@@ -172,13 +176,13 @@ class TestCounters(unittest.TestCase):
 
     def test_passed_count(self):
         for i in range(5):
-            self.v.check(Tick(token=100, ltp=100.0 + i, ts=f"T{i}", recv_mono_ns=0))
+            self.v.check(Tick(token=100, ltp=100.0 + i, ts=ts(20 + i), recv_mono_ns=0))
         self.assertEqual(self.v.passed_count, 5)
 
     def test_mixed_counts(self):
-        self.v.check(Tick(token=100, ltp=100.0, ts="T1", recv_mono_ns=0))
-        self.v.check(Tick(token=100, ltp=0.0, ts="T2", recv_mono_ns=0))
-        self.v.check(Tick(token=100, ltp=101.0, ts="T0", recv_mono_ns=0))
+        self.v.check(Tick(token=100, ltp=100.0, ts=ts(20), recv_mono_ns=0))
+        self.v.check(Tick(token=100, ltp=0.0, ts=ts(21), recv_mono_ns=0))
+        self.v.check(Tick(token=100, ltp=101.0, ts=ts(19), recv_mono_ns=0))
         self.assertEqual(self.v.passed_count, 1)
         self.assertEqual(self.v.rejected_count, 2)
 
@@ -189,9 +193,9 @@ class TestCounters(unittest.TestCase):
         self.assertEqual(self.v.rejected_by_reason["ltp_zero"], 1)
 
     def test_rejected_by_reason_both(self):
-        self.v.check(Tick(token=100, ltp=100.0, ts="T2", recv_mono_ns=0))
-        self.v.check(Tick(token=100, ltp=0.0, ts="T3", recv_mono_ns=0))
-        self.v.check(Tick(token=100, ltp=101.0, ts="T1", recv_mono_ns=0))
+        self.v.check(Tick(token=100, ltp=100.0, ts=ts(22), recv_mono_ns=0))
+        self.v.check(Tick(token=100, ltp=0.0, ts=ts(23), recv_mono_ns=0))
+        self.v.check(Tick(token=100, ltp=101.0, ts=ts(21), recv_mono_ns=0))
         reasons = self.v.rejected_by_reason
         self.assertEqual(reasons["ltp_zero"], 1)
         self.assertEqual(reasons["ts_backward"], 1)
@@ -201,20 +205,20 @@ class TestReset(unittest.TestCase):
 
     def test_reset_clears_all(self):
         v = TickValidator()
-        v.check(Tick(token=100, ltp=100.0, ts="T1", recv_mono_ns=0))
-        v.check(Tick(token=100, ltp=0.0, ts="T2", recv_mono_ns=0))
-        v.check(Tick(token=100, ltp=101.0, ts="T0", recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=100.0, ts=ts(20), recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=0.0, ts=ts(21), recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=101.0, ts=ts(19), recv_mono_ns=0))
         v.reset()
         self.assertEqual(v.passed_count, 0)
         self.assertEqual(v.rejected_count, 0)
-        self.assertEqual(v.rejected_by_reason, {"ltp_zero": 0, "ts_backward": 0})
+        self.assertEqual(v.rejected_by_reason, {"ltp_zero": 0, "ts_backward": 0, "ts_format": 0})
         self.assertIsNone(v.get_prev_ts(100))
 
     def test_works_after_reset(self):
         v = TickValidator()
-        v.check(Tick(token=100, ltp=100.0, ts="T1", recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=100.0, ts=ts(20), recv_mono_ns=0))
         v.reset()
-        ok, _ = v.check(Tick(token=100, ltp=101.0, ts="T1", recv_mono_ns=0))
+        ok, _ = v.check(Tick(token=100, ltp=101.0, ts=ts(20), recv_mono_ns=0))
         self.assertTrue(ok)
         self.assertEqual(v.passed_count, 1)
 
@@ -355,7 +359,7 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_large_ltp_passes(self):
         v = TickValidator()
-        tick = Tick(token=100, ltp=999999.99, ts="T1", recv_mono_ns=0)
+        tick = Tick(token=100, ltp=999999.99, ts=ts(20), recv_mono_ns=0)
         ok, reason = v.check(tick)
         self.assertTrue(ok)
 
@@ -368,17 +372,17 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_rejected_tick_does_not_update_prev_ts(self):
         v = TickValidator()
-        v.check(Tick(token=100, ltp=100.0, ts="T2", recv_mono_ns=0))
-        v.check(Tick(token=100, ltp=0.0, ts="T1", recv_mono_ns=0))
-        self.assertEqual(v.get_prev_ts(100), "T2")
+        v.check(Tick(token=100, ltp=100.0, ts=ts(22), recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=0.0, ts=ts(21), recv_mono_ns=0))
+        self.assertEqual(v.get_prev_ts(100), ts(22))
 
     def test_rejected_backward_does_not_update_prev_ts(self):
         v = TickValidator()
-        v.check(Tick(token=100, ltp=100.0, ts="T3", recv_mono_ns=0))
-        v.check(Tick(token=100, ltp=101.0, ts="T1", recv_mono_ns=0))
-        ok, _ = v.check(Tick(token=100, ltp=102.0, ts="T2", recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=100.0, ts=ts(23), recv_mono_ns=0))
+        v.check(Tick(token=100, ltp=101.0, ts=ts(21), recv_mono_ns=0))
+        ok, _ = v.check(Tick(token=100, ltp=102.0, ts=ts(22), recv_mono_ns=0))
         self.assertFalse(ok)
-        self.assertEqual(v.get_prev_ts(100), "T3")
+        self.assertEqual(v.get_prev_ts(100), ts(23))
 
 
 if __name__ == "__main__":
