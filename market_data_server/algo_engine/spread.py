@@ -63,14 +63,10 @@ class SpreadEngine:
     def _tick_is_fresh(self, tick: Tick) -> bool:
         if not tick.ts:
             return False
-        try:
-            tick_dt = datetime.strptime(tick.ts, "%Y-%m-%d %H:%M:%S.%f")
-            tick_dt = tick_dt.replace(tzinfo=IST)
-            now = datetime.now(IST)
-            age_seconds = (now - tick_dt).total_seconds()
-            return age_seconds <= SPREAD_FRESHNESS_SECONDS
-        except (ValueError, TypeError):
+        if not tick.recv_mono_ns:
             return False
+        age_seconds = (time.monotonic_ns() - tick.recv_mono_ns) / 1e9
+        return age_seconds <= SPREAD_FRESHNESS_SECONDS
 
     def compute_for_stock(self, stock: str) -> Optional[SpreadSnapshot]:
         if stock not in STOCK_CONFIG:

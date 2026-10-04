@@ -249,8 +249,9 @@ class TickBridge:
         return result
 
     def inject_tick(self, token: int, ltp: float, ts: str = "",
-                   info: dict = None, gen: int = 0):
-        now_ns = time.monotonic_ns()
+                   info: dict = None, gen: int = 0,
+                   recv_mono_ns: int = None):
+        now_ns = recv_mono_ns if recv_mono_ns is not None else time.monotonic_ns()
         tick = Tick(
             token=token, ltp=ltp, ts=ts, recv_mono_ns=now_ns,
             gen=gen, info=info or {},
@@ -276,3 +277,15 @@ class TickBridge:
             self._ticks.clear()
             self._recv_times.clear()
             self._tick_count = 0
+
+    def purge_stale(self, max_age_seconds: float = 300) -> int:
+        now = time.monotonic_ns()
+        cutoff_ns = now - int(max_age_seconds * 1e9)
+        purged = 0
+        with self._lock:
+            stale_tokens = [tok for tok, recv in self._recv_times.items() if recv < cutoff_ns]
+            for tok in stale_tokens:
+                del self._ticks[tok]
+                del self._recv_times[tok]
+                purged += 1
+        return purged

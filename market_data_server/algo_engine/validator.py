@@ -74,3 +74,10 @@ class TickValidator:
             self._passed_count = 0
             for k in self._rejected_by_reason:
                 self._rejected_by_reason[k] = 0
+
+    def purge_unknown_tokens(self, known_tokens: set) -> int:
+        with self._lock:
+            stale = [tok for tok in self._prev_ts if tok not in known_tokens]
+            for tok in stale:
+                del self._prev_ts[tok]
+            return len(stale)

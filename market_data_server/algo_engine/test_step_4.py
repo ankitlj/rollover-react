@@ -314,25 +314,27 @@ class TestFreshnessCheck(unittest.TestCase):
         self.engine = SpreadEngine(self.bridge, INITIAL_SPREADS)
 
     def test_stale_current_tick_skipped(self):
+        import time
         tokens = self.bridge.get_tokens_for_stock("RELIANCE")
-        stale_ts = _now_ist_str(-120)
-        fresh_ts = _now_ist_str()
-        self.bridge.inject_tick(tokens["current"], 2850.0, ts=stale_ts,
-                                info={"sym": "RELIANCE", "type": "future", "month": "current"})
-        self.bridge.inject_tick(tokens["next"], 2854.0, ts=fresh_ts,
+        stale_mono = time.monotonic_ns() - int(120 * 1e9)
+        self.bridge.inject_tick(tokens["current"], 2850.0, ts="2026-10-01 09:20:00.000",
+                                info={"sym": "RELIANCE", "type": "future", "month": "current"},
+                                recv_mono_ns=stale_mono)
+        self.bridge.inject_tick(tokens["next"], 2854.0, ts="2026-10-01 09:20:01.000",
                                 info={"sym": "RELIANCE", "type": "future", "month": "next"})
         snap = self.engine.compute_for_stock("RELIANCE")
         self.assertIsNone(snap)
         self.assertEqual(self.engine.skip_reasons["RELIANCE"], "stale_current")
 
     def test_stale_next_tick_skipped(self):
+        import time
         tokens = self.bridge.get_tokens_for_stock("TCS")
-        fresh_ts = _now_ist_str()
-        stale_ts = _now_ist_str(-120)
-        self.bridge.inject_tick(tokens["current"], 2096.0, ts=fresh_ts,
+        stale_mono = time.monotonic_ns() - int(120 * 1e9)
+        self.bridge.inject_tick(tokens["current"], 2096.0, ts="2026-10-01 09:20:01.000",
                                 info={"sym": "TCS", "type": "future", "month": "current"})
-        self.bridge.inject_tick(tokens["next"], 2102.0, ts=stale_ts,
-                                info={"sym": "TCS", "type": "future", "month": "next"})
+        self.bridge.inject_tick(tokens["next"], 2102.0, ts="2026-10-01 09:20:00.000",
+                                info={"sym": "TCS", "type": "future", "month": "next"},
+                                recv_mono_ns=stale_mono)
         snap = self.engine.compute_for_stock("TCS")
         self.assertIsNone(snap)
         self.assertEqual(self.engine.skip_reasons["TCS"], "stale_next")
