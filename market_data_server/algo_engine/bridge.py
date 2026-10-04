@@ -83,7 +83,7 @@ class TickBridge:
             return list(self._stocks)
 
     def _on_metadata(self, msg: dict):
-        tokens = msg.get("tokens", {})
+        tokens = msg.get("tokens") or {}
         parsed = {}
         for tok_str, info in tokens.items():
             try:
@@ -113,10 +113,10 @@ class TickBridge:
                 recv_mono_ns=now_ns,
                 gen=snap.get("gen", 0),
                 mode=snap.get("mode", 0),
-                open=snap.get("open", 0) / 100.0,
-                high=snap.get("high", 0) / 100.0,
-                low=snap.get("low", 0) / 100.0,
-                close=snap.get("close", 0) / 100.0,
+                open=float(snap.get("open") or 0) / 100.0,
+                high=float(snap.get("high") or 0) / 100.0,
+                low=float(snap.get("low") or 0) / 100.0,
+                close=float(snap.get("close") or 0) / 100.0,
                 volume=snap.get("volume", 0),
                 ltq=snap.get("ltq", 0),
                 oi=snap.get("oi", 0),
