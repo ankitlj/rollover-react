@@ -110,7 +110,7 @@ class TickBridge:
                 continue
             tick = Tick(
                 token=token,
-                ltp=snap.get("ltp_r", 0.0),
+                ltp=float(snap.get("ltp_r") or 0.0),
                 ts=snap.get("ts", ""),
                 recv_mono_ns=now_ns,
                 gen=snap.get("gen", 0),
