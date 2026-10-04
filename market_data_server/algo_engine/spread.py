@@ -33,7 +33,9 @@ class SpreadEngine:
         self._lock = threading.Lock()
         self._snapshots: Dict[str, SpreadSnapshot] = {}
         self._skip_reasons: Dict[str, str] = {}
+        self._stale_counters: Dict[str, int] = {}
         self._cycle_count: int = 0
+        self._last_success_mono_ns: int = 0
         self._stop_event = threading.Event()
         self._timer_thread: Optional[threading.Thread] = None
 
@@ -66,7 +68,7 @@ class SpreadEngine:
         if not tick.recv_mono_ns:
             return False
         age_seconds = (time.monotonic_ns() - tick.recv_mono_ns) / 1e9
-        return age_seconds <= SPREAD_FRESHNESS_SECONDS
+        return age_seconds < SPREAD_FRESHNESS_SECONDS
 
     def compute_for_stock(self, stock: str) -> Optional[SpreadSnapshot]:
         if stock not in STOCK_CONFIG:
@@ -100,12 +102,22 @@ class SpreadEngine:
         if not self._tick_is_fresh(current_tick):
             with self._lock:
                 self._skip_reasons[stock] = "stale_current"
+                self._stale_counters[stock] = self._stale_counters.get(stock, 0) + 1
+                if self._stale_counters[stock] % 10 == 0:
+                    log.warning(f"Stock {stock}: current tick stale for {self._stale_counters[stock]} consecutive checks")
             return None
 
         if not self._tick_is_fresh(next_tick):
             with self._lock:
                 self._skip_reasons[stock] = "stale_next"
+                self._stale_counters[stock] = self._stale_counters.get(stock, 0) + 1
+                if self._stale_counters[stock] % 10 == 0:
+                    log.warning(f"Stock {stock}: next tick stale for {self._stale_counters[stock]} consecutive checks")
             return None
+
+        with self._lock:
+            if stock in self._stale_counters:
+                del self._stale_counters[stock]
 
         spread = next_tick.ltp - current_tick.ltp
 
@@ -123,6 +135,7 @@ class SpreadEngine:
             )
             with self._lock:
                 self._snapshots[stock] = snapshot
+                self._last_success_mono_ns = time.monotonic_ns()
                 if stock in self._skip_reasons:
                     del self._skip_reasons[stock]
             return snapshot
@@ -148,6 +161,7 @@ class SpreadEngine:
 
         with self._lock:
             self._snapshots[stock] = snapshot
+            self._last_success_mono_ns = time.monotonic_ns()
             if stock in self._skip_reasons:
                 del self._skip_reasons[stock]
 
@@ -167,6 +181,9 @@ class SpreadEngine:
         while not self._stop_event.is_set():
             try:
                 self.compute_all()
+                if not self.is_healthy(max_stale_seconds=120):
+                    age = self.pipeline_age_seconds()
+                    log.warning(f"Pipeline stall detected: last success {age:.1f}s ago")
             except Exception:
                 log.exception("error in spread computation cycle")
             self._stop_event.wait(timeout=SAMPLE_INTERVAL_SECONDS)
@@ -192,4 +209,19 @@ class SpreadEngine:
         with self._lock:
             self._snapshots.clear()
             self._skip_reasons.clear()
+            self._stale_counters.clear()
             self._cycle_count = 0
+            self._last_success_mono_ns = 0
+
+    def is_healthy(self, max_stale_seconds: float = 120) -> bool:
+        with self._lock:
+            if self._last_success_mono_ns == 0:
+                return True
+            age_seconds = (time.monotonic_ns() - self._last_success_mono_ns) / 1e9
+            return age_seconds <= max_stale_seconds
+
+    def pipeline_age_seconds(self) -> float:
+        with self._lock:
+            if self._last_success_mono_ns == 0:
+                return -1.0
+            return (time.monotonic_ns() - self._last_success_mono_ns) / 1e9

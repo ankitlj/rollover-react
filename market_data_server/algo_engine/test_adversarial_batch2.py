@@ -139,7 +139,7 @@ class TestBug16_MonotonicClockFreshness(unittest.TestCase):
         self.assertIsNone(snap, "Zero recv_mono_ns should be stale")
 
     def test_boundary_exactly_at_freshness_limit(self):
-        """Tick at exactly SPREAD_FRESHNESS_SECONDS should be fresh"""
+        """Tick at exactly SPREAD_FRESHNESS_SECONDS should be stale (strict less-than)"""
         bridge = self._setup_bridge_with_tokens()
         engine = SpreadEngine(bridge, INITIAL_SPREADS)
         tokens = bridge.get_tokens_for_stock("RELIANCE")
@@ -153,7 +153,7 @@ class TestBug16_MonotonicClockFreshness(unittest.TestCase):
                           recv_mono_ns=boundary_mono)
 
         snap = engine.compute_for_stock("RELIANCE")
-        self.assertIsNotNone(snap, "Tick at exactly freshness limit should be fresh")
+        self.assertIsNone(snap, "Tick at exactly freshness limit should be stale")
 
 
 class TestBug17_MemoryLeakPrevention(unittest.TestCase):

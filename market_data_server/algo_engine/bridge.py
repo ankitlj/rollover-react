@@ -108,6 +108,9 @@ class TickBridge:
             token = snap.get("token")
             if token is None:
                 continue
+            with self._lock:
+                if token not in self._token_info:
+                    log.warning(f"Received tick for unknown token {token}")
             tick = Tick(
                 token=token,
                 ltp=float(snap.get("ltp_r") or 0.0),
@@ -289,3 +292,20 @@ class TickBridge:
                 del self._recv_times[tok]
                 purged += 1
         return purged
+
+    def get_unknown_tokens(self) -> List[int]:
+        with self._lock:
+            return [tok for tok in self._ticks.keys() if tok not in self._token_info]
+
+    def validate_token_mapping(self) -> dict:
+        with self._lock:
+            known_tokens = set(self._token_info.keys())
+            active_tokens = set(self._ticks.keys())
+            unknown = active_tokens - known_tokens
+            missing = known_tokens - active_tokens
+            return {
+                "unknown_tokens": list(unknown),
+                "missing_tokens": list(missing),
+                "known_count": len(known_tokens),
+                "active_count": len(active_tokens),
+            }
