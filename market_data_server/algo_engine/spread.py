@@ -78,6 +78,11 @@ class SpreadEngine:
                 self._skip_reasons[stock] = "no_initial_spread"
             return None
 
+        if initial_spread <= 0:
+            with self._lock:
+                self._skip_reasons[stock] = "negative_initial_spread"
+            return None
+
         current_token, next_token = self._get_tokens_for_stock(stock)
         if current_token is None or next_token is None:
             with self._lock:

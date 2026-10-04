@@ -98,8 +98,11 @@ class TestSpreadComputationAllStocks(unittest.TestCase):
 
         results = self.engine.compute_all()
 
-        self.assertEqual(len(results), 19)
+        self.assertEqual(len(results), 18, "ASTRAL should be skipped (negative initial_spread)")
         for sym in STOCK_CONFIG:
+            if sym == "ASTRAL":
+                self.assertNotIn(sym, results, "ASTRAL should be skipped")
+                continue
             self.assertIn(sym, results, f"{sym} missing from results")
             snap = results[sym]
             self.assertEqual(snap.stock, sym)
@@ -252,14 +255,12 @@ class TestSpreadComputationAllStocks(unittest.TestCase):
         expected_discount = (3.50 - 2.0) / 3.50 * 100
         self.assertAlmostEqual(snap.discount_pct, expected_discount, places=2)
 
-    def test_astral_contango_override(self):
+    def test_astral_negative_initial_spread_skipped(self):
         self._inject_ticks("ASTRAL", 1406.0, 1408.0)
         snap = self.engine.compute_for_stock("ASTRAL")
-        self.assertIsNotNone(snap)
-        self.assertTrue(snap.is_contango)
-        self.assertAlmostEqual(snap.spread, 2.0)
-        expected_discount = (-1.70 - 2.0) / (-1.70) * 100
-        self.assertAlmostEqual(snap.discount_pct, expected_discount, places=2)
+        self.assertIsNone(snap, "ASTRAL with negative initial_spread should be skipped")
+        skip_reasons = self.engine.skip_reasons
+        self.assertEqual(skip_reasons.get("ASTRAL"), "negative_initial_spread")
 
 
 class TestBackwardation(unittest.TestCase):
@@ -303,6 +304,9 @@ class TestBackwardation(unittest.TestCase):
 
         results = self.engine.compute_all()
         for sym in STOCK_CONFIG:
+            if sym == "ASTRAL":
+                self.assertNotIn(sym, results, "ASTRAL should be skipped")
+                continue
             self.assertIn(sym, results)
             self.assertFalse(results[sym].is_contango)
 
@@ -420,7 +424,7 @@ class TestCycleCounting(unittest.TestCase):
             bridge.inject_tick(tokens["next"], 1005.0, ts=ts,
                                info={"sym": sym, "type": "future", "month": "next"})
         results = engine.compute_all()
-        self.assertEqual(len(results), 19)
+        self.assertEqual(len(results), 18, "ASTRAL should be skipped")
 
 
 class TestSpreadSnapshotDataclass(unittest.TestCase):
@@ -460,7 +464,7 @@ class TestReset(unittest.TestCase):
                                info={"sym": sym, "type": "future", "month": "next"})
         engine.compute_all()
         self.assertEqual(engine.cycle_count, 1)
-        self.assertEqual(len(engine.snapshots), 19)
+        self.assertEqual(len(engine.snapshots), 18, "ASTRAL should be skipped")
         engine.reset()
         self.assertEqual(engine.cycle_count, 0)
         self.assertEqual(engine.snapshots, {})
