@@ -102,7 +102,7 @@ class TickBridge:
 
     def _on_ticks(self, msg: dict):
         now_ns = time.monotonic_ns()
-        for snap in msg.get("data", []):
+        for snap in (msg.get("data") or []):
             token = snap.get("token")
             if token is None:
                 continue
@@ -128,6 +128,8 @@ class TickBridge:
                 self._tick_count += 1
 
     def _on_message(self, raw: str):
+        if not raw:
+            return
         try:
             msg = json.loads(raw)
         except json.JSONDecodeError:
