@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
 import type { Alert, LogEntry, Correction, Settings, Stock, Toast, Notification, PageId } from './types';
-import { genAlerts, createInitialLogEntries, DEFAULT_SETTINGS, STOCKS, EXPIRY_CUR } from './data';
+import { createInitialLogEntries, DEFAULT_SETTINGS, STOCKS, EXPIRY_CUR } from './data';
 
 interface StoreState {
   alerts: Alert[];
@@ -17,6 +17,7 @@ interface StoreState {
   isLoggedIn: boolean;
   showTransition: boolean;
   apiStatus: 'connected' | 'reconnecting' | 'disconnected';
+  marketOpen: boolean;
   currentMonth: string;
   nextMonth: string;
 }
@@ -44,8 +45,11 @@ interface StoreActions {
   addNotification: (type: Notification['type'], title: string, msg: string) => void;
   removeNotification: (id: string) => void;
   updateAlerts: (updater: (alerts: Alert[]) => void) => void;
-  setAlerts: (alerts: Alert[]) => void;
+  setAlerts: (alerts: Alert[] | ((prev: Alert[]) => Alert[])) => void;
   setApiStatus: (status: 'connected' | 'reconnecting' | 'disconnected') => void;
+  setMarketOpen: (open: boolean) => void;
+  setCurrentMonth: (month: string) => void;
+  setNextMonth: (month: string) => void;
   resolvedStocks: Stock[];
 }
 
@@ -73,9 +77,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   });
   const [showTransition, setShowTransition] = useState(false);
   const [stockOverrides, setStockOverrides] = useState<Record<string, Partial<Stock>>>({});
-  const [apiStatus, setApiStatus] = useState<'connected' | 'reconnecting' | 'disconnected'>('connected');
-  const [currentMonth] = useState('Oct 2025');
-  const [nextMonth] = useState('Nov 2025');
+  const [apiStatus, setApiStatus] = useState<'connected' | 'reconnecting' | 'disconnected'>('disconnected');
+  const [marketOpen, setMarketOpen] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState('');
+  const [nextMonth, setNextMonth] = useState('');
   const toastIdRef = useRef(0);
   const notifIdRef = useRef(0);
 
@@ -104,7 +109,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const completeTransition = useCallback(() => {
     setShowTransition(false);
-    setAlerts(genAlerts());
   }, []);
 
   const toggleTheme = useCallback(() => {
@@ -303,13 +307,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value = {
     alerts, logEntries, corrections, finalisedDays, settings, stockOverrides, resolvedStocks,
     currentPage, currentTheme, currentUser, toasts, notifications,
-    isLoggedIn, showTransition, apiStatus, currentMonth, nextMonth,
+    isLoggedIn, showTransition, apiStatus, marketOpen, currentMonth, nextMonth,
     setCurrentPage, toggleTheme, login, logout, completeTransition,
     sendInstruction, saveEod, saveCorrection, addCorrectionBatch, finaliseDay,
     finaliseEntry, updateDealerRemarks, setStatus, updateLogField,
     updateSettings, resetSettings, updateStock,
     addToast, removeToast, addNotification, removeNotification,
-    updateAlerts, setAlerts, setApiStatus
+    updateAlerts, setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

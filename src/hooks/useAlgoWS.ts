@@ -1,0 +1,160 @@
+import { useEffect, useRef, useCallback } from 'react';
+
+const WS_URL = 'ws://127.0.0.1:8766';
+const RECONNECT_BASE_MS = 2000;
+const RECONNECT_MAX_MS = 30000;
+const PING_INTERVAL_MS = 20000;
+
+export interface WsStockData {
+  stock: string;
+  initial_spread: number;
+  current_spread: number | null;
+  discount_pct: number | null;
+  is_contango: boolean | null;
+  current_fut_ltp: number | null;
+  next_fut_ltp: number | null;
+  timestamp: string | null;
+}
+
+export interface WsStatus {
+  phase: string;
+  is_connected: boolean;
+  market_open: boolean;
+}
+
+export interface WsAlertData {
+  stock: string;
+  discount_pct: number;
+  threshold: number;
+  trigger_count: number;
+  spread: number;
+  initial_spread: number;
+  current_fut_ltp: number;
+  next_fut_ltp: number;
+  timestamp: string;
+}
+
+interface UseAlgoWSHandlers {
+  onInit: (stocks: WsStockData[], status: WsStatus) => void;
+  onSnapshot: (stocks: WsStockData[], timestamp: string) => void;
+  onAlert: (data: WsAlertData) => void;
+  onStatus: (status: WsStatus) => void;
+  onConnectionChange: (status: 'connected' | 'reconnecting' | 'disconnected') => void;
+}
+
+export function useAlgoWS(handlers: UseAlgoWSHandlers) {
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectAttempt = useRef(0);
+  const reconnectTimer = useRef<number>(0);
+  const pingTimer = useRef<number>(0);
+  const handlersRef = useRef(handlers);
+  const mountedRef = useRef(true);
+
+  handlersRef.current = handlers;
+
+  const clearTimers = useCallback(() => {
+    if (pingTimer.current) {
+      clearInterval(pingTimer.current);
+      pingTimer.current = 0;
+    }
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = 0;
+    }
+  }, []);
+
+  const connect = useCallback(() => {
+    if (!mountedRef.current) return;
+
+    try {
+      const ws = new WebSocket(WS_URL);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        if (!mountedRef.current) { ws.close(); return; }
+        reconnectAttempt.current = 0;
+        handlersRef.current.onConnectionChange('connected');
+
+        pingTimer.current = window.setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'ping' }));
+          }
+        }, PING_INTERVAL_MS);
+      };
+
+      ws.onmessage = (event) => {
+        if (!mountedRef.current) return;
+        try {
+          const msg = JSON.parse(event.data);
+          switch (msg.type) {
+            case 'init':
+              handlersRef.current.onInit(msg.stocks, msg.status);
+              break;
+            case 'snapshot':
+              handlersRef.current.onSnapshot(msg.stocks, msg.timestamp);
+              break;
+            case 'alert':
+              handlersRef.current.onAlert(msg);
+              break;
+            case 'status':
+              handlersRef.current.onStatus(msg);
+              break;
+            case 'pong':
+              break;
+          }
+        } catch {
+          // ignore malformed messages
+        }
+      };
+
+      ws.onclose = () => {
+        if (!mountedRef.current) return;
+        if (pingTimer.current) {
+          clearInterval(pingTimer.current);
+          pingTimer.current = 0;
+        }
+        handlersRef.current.onConnectionChange('disconnected');
+
+        if (mountedRef.current) {
+          const delay = Math.min(
+            RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt.current),
+            RECONNECT_MAX_MS,
+          );
+          reconnectAttempt.current++;
+          handlersRef.current.onConnectionChange('reconnecting');
+          reconnectTimer.current = window.setTimeout(() => {
+            if (mountedRef.current) connect();
+          }, delay);
+        }
+      };
+
+      ws.onerror = () => {
+        // onclose will fire after onerror
+      };
+    } catch {
+      if (!mountedRef.current) return;
+      const delay = Math.min(
+        RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt.current),
+        RECONNECT_MAX_MS,
+      );
+      reconnectAttempt.current++;
+      handlersRef.current.onConnectionChange('reconnecting');
+      reconnectTimer.current = window.setTimeout(() => {
+        if (mountedRef.current) connect();
+      }, delay);
+    }
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    connect();
+    return () => {
+      mountedRef.current = false;
+      clearTimers();
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, [connect, clearTimers]);
+}

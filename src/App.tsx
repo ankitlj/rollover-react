@@ -10,6 +10,7 @@ import SettingsPage from './components/SettingsPage';
 import ToastStack from './components/ToastStack';
 import NotificationContainer from './components/NotificationContainer';
 import NavTabs from './components/NavTabs';
+import AlgoConnection from './components/AlgoConnection';
 
 export default function App() {
   const { isLoggedIn, showTransition, currentPage } = useStore();
@@ -29,6 +30,7 @@ export default function App() {
       <div className="bg-glow bg-glow-1" />
       <div className="bg-glow bg-glow-2" />
 
+      <AlgoConnection />
       <Header />
 
       <main className="shell">

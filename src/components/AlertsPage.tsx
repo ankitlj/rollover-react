@@ -6,20 +6,13 @@ import ExecModal from './ExecModal';
 const SECTORS = [...new Set(STOCKS.map(s => s.sector))].sort();
 
 export default function AlertsPage() {
-  const { alerts, addToast } = useStore();
+  const { alerts, addToast, marketOpen } = useStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sectorFilter, setSectorFilter] = useState('all');
   const [sortCol, setSortCol] = useState('discount');
   const [sortDir, setSortDir] = useState(-1);
   const [execAlertId, setExecAlertId] = useState<string | null>(null);
-  const [marketOpen, setMarketOpen] = useState(() => {
-    const now = new Date();
-    const ist = new Date(now.getTime() + 5.5 * 3600000);
-    const h = ist.getUTCHours(), m = ist.getUTCMinutes();
-    const mins = h * 60 + m;
-    return mins >= 555 && mins < 915;
-  });
   const flashCellsRef = useRef<Record<string, 'up' | 'down'>>({});
 
   const filtered = useMemo(() => {
@@ -66,19 +59,6 @@ export default function AlertsPage() {
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const checkMarket = () => {
-      const now = new Date();
-      const ist = new Date(now.getTime() + 5.5 * 3600000);
-      const h = ist.getUTCHours(), m = ist.getUTCMinutes();
-      const mins = h * 60 + m;
-      setMarketOpen(mins >= 555 && mins < 915);
-    };
-    checkMarket();
-    const id = setInterval(checkMarket, 60000);
     return () => clearInterval(id);
   }, []);
 
