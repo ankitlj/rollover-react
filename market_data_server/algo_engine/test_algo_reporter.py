@@ -196,6 +196,11 @@ class TestAlgoReporterVerdict(unittest.TestCase):
 
 
 class TestAlgoReporterGenerateReport(unittest.TestCase):
+    def setUp(self):
+        self._tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self._tmpdir, ignore_errors=True)
 
     def test_generate_report_contains_header(self):
         orch = _make_mock_orchestrator()
@@ -204,13 +209,10 @@ class TestAlgoReporterGenerateReport(unittest.TestCase):
         reporter._start_time = datetime(2026, 10, 6, 9, 0, 0, tzinfo=IST)
         reporter._end_time = datetime(2026, 10, 6, 15, 30, 0, tzinfo=IST)
         reporter.record_alert(_make_alert())
-        
-        with patch("pathlib.Path") as mock_path:
-            mock_dir = MagicMock()
-            mock_dir.mkdir = MagicMock()
-            mock_path.return_value.parent.parent = mock_dir
+
+        with patch("algo_engine.algo_reporter.__file__", Path(self._tmpdir) / "algo_reporter.py"):
             report_text = reporter.generate_report()
-        
+
         self.assertIn("ALGO ENGINE DAILY REPORT", report_text)
         self.assertIn("RELIANCE", report_text)
 
@@ -220,7 +222,7 @@ class TestAlgoReporterGenerateReport(unittest.TestCase):
         reporter = AlgoReporter(orch, bridge)
         reporter._start_time = datetime(2026, 10, 6, 9, 0, 0, tzinfo=IST)
         reporter._end_time = datetime(2026, 10, 6, 15, 30, 0, tzinfo=IST)
-        
+
         reporter.record_alert(_make_alert(
             stock="INFOSYS",
             discount_pct=42.5,
@@ -228,13 +230,10 @@ class TestAlgoReporterGenerateReport(unittest.TestCase):
             spread=3.1,
             trigger_count=2,
         ))
-        
-        with patch("pathlib.Path") as mock_path:
-            mock_dir = MagicMock()
-            mock_dir.mkdir = MagicMock()
-            mock_path.return_value.parent.parent = mock_dir
+
+        with patch("algo_engine.algo_reporter.__file__", Path(self._tmpdir) / "algo_reporter.py"):
             report_text = reporter.generate_report()
-        
+
         self.assertIn("INFOSYS", report_text)
         self.assertIn("42.50", report_text)
         self.assertIn("40", report_text)
@@ -246,13 +245,10 @@ class TestAlgoReporterGenerateReport(unittest.TestCase):
         reporter._start_time = datetime(2026, 10, 6, 9, 0, 0, tzinfo=IST)
         reporter._end_time = datetime(2026, 10, 6, 15, 30, 0, tzinfo=IST)
         reporter._bridge_connect_events = [{"time": "09:15:00"}]
-        
-        with patch("pathlib.Path") as mock_path:
-            mock_dir = MagicMock()
-            mock_dir.mkdir = MagicMock()
-            mock_path.return_value.parent.parent = mock_dir
+
+        with patch("algo_engine.algo_reporter.__file__", Path(self._tmpdir) / "algo_reporter.py"):
             report_text = reporter.generate_report()
-        
+
         self.assertIn("VERDICT: HEALTHY", report_text)
 
 
