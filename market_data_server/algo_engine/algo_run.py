@@ -29,6 +29,7 @@ from algo_engine.spread import SpreadEngine
 from algo_engine.alerts import AlertEngine, Alert
 from algo_engine.session import SessionEngine
 from algo_engine.orchestrator import AlgoOrchestrator
+from algo_engine.algo_reporter import AlgoReporter
 
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -48,20 +49,6 @@ logging.basicConfig(
 log = logging.getLogger("algo_run")
 
 _shutdown = threading.Event()
-
-
-def on_alert(alert: Alert):
-    log.info(
-        "ALERT FIRED | %s | discount=%.2f%% >= %d%% | spread=%.2f | "
-        "trigger#%d | fut_ltp=%.2f / %.2f",
-        alert.stock,
-        alert.discount_pct,
-        alert.threshold,
-        alert.spread,
-        alert.trigger_count,
-        alert.current_fut_ltp,
-        alert.next_fut_ltp,
-    )
 
 
 def _status_loop(orchestrator: AlgoOrchestrator, bridge: TickBridge):
@@ -104,8 +91,25 @@ def run():
         spread=spread,
         alerts=alerts,
         session=session,
-        on_alert=on_alert,
     )
+
+    reporter = AlgoReporter(orchestrator, bridge)
+
+    def on_alert(alert: Alert):
+        log.info(
+            "ALERT FIRED | %s | discount=%.2f%% >= %d%% | spread=%.2f | "
+            "trigger#%d | fut_ltp=%.2f / %.2f",
+            alert.stock,
+            alert.discount_pct,
+            alert.threshold,
+            alert.spread,
+            alert.trigger_count,
+            alert.current_fut_ltp,
+            alert.next_fut_ltp,
+        )
+        reporter.record_alert(alert)
+
+    orchestrator._on_alert = on_alert
 
     def signal_handler(sig, frame):
         log.info(f"Shutdown signal ({sig})")
@@ -127,6 +131,7 @@ def run():
             log.warning("Not connected yet — will keep retrying in background")
 
         orchestrator.start()
+        reporter.start()
 
         status_thread = threading.Thread(
             target=_status_loop, args=(orchestrator, bridge),
@@ -145,6 +150,7 @@ def run():
         log.info("Shutting down algo engine...")
         orchestrator.stop()
         bridge.stop()
+        reporter.stop()
 
         st = orchestrator.status()
         log.info(
@@ -156,6 +162,14 @@ def run():
             st["validator_rejected"],
             bridge.tick_count,
         )
+        
+        log.info("Generating daily report...")
+        try:
+            report = reporter.generate_report()
+            log.info("Daily report generated")
+        except Exception:
+            log.exception("Failed to generate daily report")
+        
         log.info("ALGO ENGINE STOPPED")
 
 

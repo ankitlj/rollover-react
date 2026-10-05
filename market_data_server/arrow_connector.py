@@ -125,6 +125,10 @@ class ArrowConnector:
         self._recovery_lock = threading.Lock()
         self._401_count = 0
 
+        self._waiting_since_mono = 0.0
+        self._watchdog_thread: Optional[threading.Thread] = None
+        self._watchdog_start()
+
     # ─── PROPERTIES ──────────────────────────────────────
 
     @property
@@ -147,6 +151,10 @@ class ArrowConnector:
         with self._state_lock:
             old = self._state
             self._state = new_state
+            if new_state == FeedState.WAITING_FOR_FRESH_BOOKS:
+                self._waiting_since_mono = time.monotonic()
+            elif old == FeedState.WAITING_FOR_FRESH_BOOKS:
+                self._waiting_since_mono = 0.0
             if old != new_state:
                 log.info(f"Feed state: {old.value} -> {new_state.value}  ({reason})")
                 for listener in self._state_listeners:
@@ -622,6 +630,49 @@ class ArrowConnector:
             "current_expiry": self._current_expiry,
             "next_expiry": self._next_expiry,
         }
+
+    # ─── NO-DATA WATCHDOG ─────────────────────────────────
+
+    def _watchdog_start(self):
+        self._watchdog_thread = threading.Thread(
+            target=self._watchdog_loop, daemon=True, name="arrow-watchdog"
+        )
+        self._watchdog_thread.start()
+
+    def _watchdog_loop(self):
+        while not self._shutdown.is_set():
+            self._shutdown.wait(timeout=10)
+            if self._shutdown.is_set():
+                break
+            self._watchdog_check()
+
+    def _watchdog_check(self):
+        now = time.monotonic()
+        state = self._state
+
+        if state == FeedState.WAITING_FOR_FRESH_BOOKS:
+            with self._state_lock:
+                waiting_since = self._waiting_since_mono
+            with self._tick_count_lock:
+                had_data = self._tick_count > 0
+            if had_data and waiting_since > 0 and (now - waiting_since) > 60:
+                log.warning(
+                    "Watchdog: WAITING_FOR_FRESH_BOOKS for %.0fs with prior data — "
+                    "session likely dead, triggering full_recovery",
+                    now - waiting_since,
+                )
+                threading.Thread(target=self.full_recovery, daemon=True).start()
+
+        elif state == FeedState.HEALTHY:
+            with self._tick_count_lock:
+                last_tick = self._last_tick_time
+            if last_tick > 0 and (now - last_tick) > 120:
+                log.warning(
+                    "Watchdog: HEALTHY but no ticks for %.0fs — "
+                    "silent data death, triggering full_recovery",
+                    now - last_tick,
+                )
+                threading.Thread(target=self.full_recovery, daemon=True).start()
 
     # ─── SHUTDOWN ────────────────────────────────────────
 
