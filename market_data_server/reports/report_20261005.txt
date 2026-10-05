@@ -1,0 +1,106 @@
+============================================================
+  DAILY OPERATIONS REPORT — 2026-10-05
+============================================================
+
+VERDICT: FAILED
+  !! 1 WebSocket error(s) from Arrow SDK
+  !! 6 long data gap(s) >60s (worst: 1242.4s at 11:05:55)
+  !! 10 data gap(s) >10s detected
+
+SESSION
+  Start:     2026-10-05 10:37:48 IST
+  End:       2026-10-05 11:06:03 IST
+  Duration:  0h 28m 15s
+  Total ticks received: 34,607
+
+FEED HEALTH
+  Final state:        FeedState.DISCONNECTED
+  State transitions:  8
+  WS close events:    1
+  WS disconnects:     1
+  WS errors:          1
+  Reconnections:      1
+  Reconnect exhausted: No
+  Generation changes: 1
+
+WS CLOSE EVENTS (why Arrow disconnected us)
+  [11:00:06] code=None (no code — abnormal termination) — None
+
+WS ERRORS (Arrow SDK errors)
+  [11:00:06] Connection to remote host was lost.
+
+STATE TRANSITIONS
+  [10:37:54] FeedState.DISCONNECTED -> FeedState.CONNECTING  (connecting data stream)
+  [10:37:54] FeedState.CONNECTING -> FeedState.CONNECTED  (ws connected)
+  [10:37:54] FeedState.CONNECTED -> FeedState.WAITING_FOR_FRESH_BOOKS  (waiting for first ticks)
+  [10:37:54] FeedState.WAITING_FOR_FRESH_BOOKS -> FeedState.HEALTHY  (46/57 tokens have fresh data)
+  [11:00:06] FeedState.HEALTHY -> FeedState.DISCONNECTED  (ws closed: None)
+  [11:00:06] FeedState.DISCONNECTED -> FeedState.RECONNECTING  (ws disconnected)
+  [11:00:06] FeedState.RECONNECTING -> FeedState.WAITING_FOR_FRESH_BOOKS  (reconnect attempt=1 gen=2)
+  [11:06:03] FeedState.WAITING_FOR_FRESH_BOOKS -> FeedState.DISCONNECTED  (manual disconnect)
+
+RECONNECTIONS
+  [11:00:06] attempt=1, delay=0s, gen=2
+
+DATA GAPS
+  Total gap events: 10
+  Significant (>30s): 6
+    [11:03:25] 1092.3s silence — 57 tokens
+    [11:03:55] 1122.3s silence — 57 tokens
+    [11:04:25] 1152.3s silence — 57 tokens
+    [11:04:55] 1182.3s silence — 57 tokens
+    [11:05:25] 1212.3s silence — 57 tokens
+    [11:05:55] 1242.4s silence — 57 tokens
+  All gap events (>10s):
+    [10:38:18] 12.1s — 1 tokens
+    [10:38:48] 19.0s — 1 tokens
+    [10:39:18] 11.6s — 1 tokens
+    [10:44:18] 13.2s — 1 tokens
+    [11:03:25] 1092.3s — 57 tokens
+    [11:03:55] 1122.3s — 57 tokens
+    [11:04:25] 1152.3s — 57 tokens
+    [11:04:55] 1182.3s — 57 tokens
+    [11:05:25] 1212.3s — 57 tokens
+    [11:05:55] 1242.4s — 57 tokens
+
+PER-TOKEN GAP FREQUENCY (which instruments had issues)
+  61484 (AMBUJACEM future next): 10 gap events
+  2885 (RELIANCE cash): 6 gap events
+  48987 (RELIANCE future current): 6 gap events
+  61697 (RELIANCE future next): 6 gap events
+  15083 (ADANIPORTS cash): 6 gap events
+  48718 (ADANIPORTS future current): 6 gap events
+  61480 (ADANIPORTS future next): 6 gap events
+  14418 (ASTRAL cash): 6 gap events
+  48733 (ASTRAL future current): 6 gap events
+  61490 (ASTRAL future next): 6 gap events
+
+TICK RATE (5-min buckets)
+  10:30    34,607 ticks  ##################################################
+  Avg rate: 1225 ticks/min
+
+ERRORS
+  None
+
+CLIENT CONNECTIONS
+  Total connections:     1
+  Total disconnections:  1
+  Peak concurrent:       1
+
+WS BROADCAST
+  Broadcasts:    7,088
+  Ticks sent:    34,607
+  Queue drops:   0
+
+TOKEN COVERAGE
+  Tokens with data: 57
+  Fewest ticks:
+    61484 (AMBUJACEM future next): 146 ticks
+    48725 (AMBUJACEM future current): 259 ticks
+    61508 (BANDHANBANK future next): 264 ticks
+    48741 (BANDHANBANK future current): 402 ticks
+    1270 (AMBUJACEM cash): 458 ticks
+  Most ticks:
+    3499 (TATASTEEL cash): 940 ticks
+    1333 (HDFCBANK cash): 971 ticks
+    2885 (RELIANCE cash): 972 ticks

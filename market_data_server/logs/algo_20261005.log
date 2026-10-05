@@ -1,0 +1,57 @@
+2026-10-05 10:38:12.160 [MainThread  ] algo_run       INFO  ============================================================
+2026-10-05 10:38:12.161 [MainThread  ] algo_run       INFO  ALGO ENGINE STARTING
+2026-10-05 10:38:12.161 [MainThread  ] algo_run       INFO  Date: 2026-10-05 10:38:12 IST
+2026-10-05 10:38:12.161 [MainThread  ] algo_run       INFO  Stocks: 19 | WS: ws://127.0.0.1:8765
+2026-10-05 10:38:12.161 [MainThread  ] algo_run       INFO  Sample interval: 60s
+2026-10-05 10:38:12.162 [MainThread  ] algo_run       INFO  ============================================================
+2026-10-05 10:38:12.162 [MainThread  ] algo_run       INFO  Bridge connecting to ws://127.0.0.1:8765 ...
+2026-10-05 10:38:12.180 [algo-bridge ] algo_bridge    INFO  connected to ws://127.0.0.1:8765
+2026-10-05 10:38:13.168 [algo-orchestrator] algo_session   INFO  Session phase: ACTIVE
+2026-10-05 10:38:13.168 [MainThread  ] algo_orchestrator INFO  Algo orchestrator started (interval=60s)
+2026-10-05 10:38:13.168 [algo-orchestrator] algo_alerts    INFO  ALERT: BANDHANBANK | discount=84.87% >= 40% | spread=0.18 | trigger#1
+2026-10-05 10:38:13.168 [algo-orchestrator] algo_run       INFO  ALERT FIRED | BANDHANBANK | discount=84.87% >= 40% | spread=0.18 | trigger#1 | fut_ltp=171.65 / 171.83
+2026-10-05 10:38:13.168 [MainThread  ] algo_run       INFO  ALGO ENGINE RUNNING — Ctrl+C to stop
+2026-10-05 10:38:43.181 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=1 | alerts=1 | stocks_computed=17 stocks_skipped=2 | bridge_ticks=2303 connected=True
+2026-10-05 10:39:13.191 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=2 | alerts=1 | stocks_computed=35 stocks_skipped=3 | bridge_ticks=4614 connected=True
+2026-10-05 10:39:43.197 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=2 | alerts=1 | stocks_computed=35 stocks_skipped=3 | bridge_ticks=6903 connected=True
+2026-10-05 10:40:13.212 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=3 | alerts=1 | stocks_computed=53 stocks_skipped=4 | bridge_ticks=9184 connected=True
+2026-10-05 10:40:43.219 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=3 | alerts=1 | stocks_computed=53 stocks_skipped=4 | bridge_ticks=11500 connected=True
+2026-10-05 10:41:13.188 [algo-orchestrator] algo_alerts    INFO  ALERT: TATASTEEL | discount=43.24% >= 40% | spread=0.63 | trigger#1
+2026-10-05 10:41:13.191 [algo-orchestrator] algo_run       INFO  ALERT FIRED | TATASTEEL | discount=43.24% >= 40% | spread=0.63 | trigger#1 | fut_ltp=179.43 / 180.06
+2026-10-05 10:41:13.233 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=4 | alerts=2 | stocks_computed=71 stocks_skipped=5 | bridge_ticks=13738 connected=True
+2026-10-05 10:41:43.244 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=4 | alerts=2 | stocks_computed=71 stocks_skipped=5 | bridge_ticks=15967 connected=True
+2026-10-05 10:42:13.245 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=5 | alerts=2 | stocks_computed=89 stocks_skipped=6 | bridge_ticks=18210 connected=True
+2026-10-05 10:42:43.248 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=5 | alerts=2 | stocks_computed=89 stocks_skipped=6 | bridge_ticks=20478 connected=True
+2026-10-05 10:43:13.197 [algo-orchestrator] algo_alerts    INFO  ALERT: INDUSINDBK | discount=42.86% >= 40% | spread=2.00 | trigger#1
+2026-10-05 10:43:13.197 [algo-orchestrator] algo_run       INFO  ALERT FIRED | INDUSINDBK | discount=42.86% >= 40% | spread=2.00 | trigger#1 | fut_ltp=897.00 / 899.00
+2026-10-05 10:43:13.251 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=6 | alerts=3 | stocks_computed=107 stocks_skipped=7 | bridge_ticks=22697 connected=True
+2026-10-05 10:43:43.262 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=6 | alerts=3 | stocks_computed=107 stocks_skipped=7 | bridge_ticks=24973 connected=True
+2026-10-05 10:44:13.202 [algo-orchestrator] algo_alerts    INFO  ALERT: HCLTECH | discount=41.33% >= 40% | spread=4.40 | trigger#1
+2026-10-05 10:44:13.203 [algo-orchestrator] algo_run       INFO  ALERT FIRED | HCLTECH | discount=41.33% >= 40% | spread=4.40 | trigger#1 | fut_ltp=1204.60 / 1209.00
+2026-10-05 10:44:13.205 [algo-orchestrator] algo_alerts    INFO  ALERT: TATASTEEL | discount=55.86% >= 40% | spread=0.49 | trigger#2
+2026-10-05 10:44:13.205 [algo-orchestrator] algo_run       INFO  ALERT FIRED | TATASTEEL | discount=55.86% >= 40% | spread=0.49 | trigger#2 | fut_ltp=179.57 / 180.06
+2026-10-05 10:44:13.268 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=7 | alerts=5 | stocks_computed=125 stocks_skipped=8 | bridge_ticks=27175 connected=True
+2026-10-05 10:44:44.288 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=7 | alerts=5 | stocks_computed=125 stocks_skipped=8 | bridge_ticks=29457 connected=True
+2026-10-05 10:45:14.228 [algo-orchestrator] algo_alerts    INFO  ALERT: BAJFINANCE | discount=60.16% >= 40% | spread=2.55 | trigger#1
+2026-10-05 10:45:14.228 [algo-orchestrator] algo_run       INFO  ALERT FIRED | BAJFINANCE | discount=60.16% >= 40% | spread=2.55 | trigger#1 | fut_ltp=987.45 / 990.00
+2026-10-05 10:45:14.292 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=8 | alerts=6 | stocks_computed=143 stocks_skipped=9 | bridge_ticks=31695 connected=True
+2026-10-05 11:03:20.703 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=8 | alerts=6 | stocks_computed=143 stocks_skipped=9 | bridge_ticks=33189 connected=True
+2026-10-05 11:03:50.705 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=9 | alerts=6 | stocks_computed=143 stocks_skipped=28 | bridge_ticks=33189 connected=True
+2026-10-05 11:04:20.720 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=9 | alerts=6 | stocks_computed=143 stocks_skipped=28 | bridge_ticks=33189 connected=True
+2026-10-05 11:04:50.734 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=10 | alerts=6 | stocks_computed=143 stocks_skipped=47 | bridge_ticks=33189 connected=True
+2026-10-05 11:05:20.750 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=10 | alerts=6 | stocks_computed=143 stocks_skipped=47 | bridge_ticks=33189 connected=True
+2026-10-05 11:05:50.766 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=11 | alerts=6 | stocks_computed=143 stocks_skipped=66 | bridge_ticks=33189 connected=True
+2026-10-05 11:05:59.769 [MainThread  ] algo_run       INFO  Shutdown signal (2)
+2026-10-05 11:05:59.769 [MainThread  ] algo_run       INFO  Shutting down algo engine...
+2026-10-05 11:05:59.769 [MainThread  ] algo_orchestrator INFO  Algo orchestrator stopped
+2026-10-05 11:05:59.816 [MainThread  ] algo_run       INFO  Shutdown signal (2)
+2026-10-05 11:05:59.819 [MainThread  ] algo_run       INFO  Final stats: cycles=11 alerts=6 stocks_computed=143 validator_rejected=0 bridge_ticks=33189
+2026-10-05 11:05:59.819 [MainThread  ] algo_run       INFO  ALGO ENGINE STOPPED
+2026-10-05 11:05:59.819 [MainThread  ] asyncio        ERROR Task was destroyed but it is pending!
+task: <Task pending name='Task-2' coro=<WebSocketCommonProtocol.transfer_data() running at C:\Users\Ankit\AppData\Local\Programs\Python\Python312\Lib\site-packages\websockets\legacy\protocol.py:942> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[Task.task_wakeup(), Task.task_wakeup()]>
+2026-10-05 11:05:59.824 [MainThread  ] asyncio        ERROR Task was destroyed but it is pending!
+task: <Task pending name='Task-3' coro=<WebSocketCommonProtocol.keepalive_ping() running at C:\Users\Ankit\AppData\Local\Programs\Python\Python312\Lib\site-packages\websockets\legacy\protocol.py:1231> wait_for=<Future pending cb=[Task.task_wakeup()]>>
+2026-10-05 11:05:59.824 [MainThread  ] asyncio        ERROR Task was destroyed but it is pending!
+task: <Task pending name='Task-4' coro=<WebSocketCommonProtocol.close_connection() running at C:\Users\Ankit\AppData\Local\Programs\Python\Python312\Lib\site-packages\websockets\legacy\protocol.py:1278> wait_for=<Task pending name='Task-2' coro=<WebSocketCommonProtocol.transfer_data() running at C:\Users\Ankit\AppData\Local\Programs\Python\Python312\Lib\site-packages\websockets\legacy\protocol.py:942> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[Task.task_wakeup(), Task.task_wakeup()]>>
+2026-10-05 11:05:59.843 [MainThread  ] asyncio        ERROR Task was destroyed but it is pending!
+task: <Task pending name='Task-5' coro=<TickBridge._shutdown_ws() done, defined at C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\algo_engine\bridge.py:150> wait_for=<Task pending name='Task-2' coro=<WebSocketCommonProtocol.transfer_data() done, defined at C:\Users\Ankit\AppData\Local\Programs\Python\Python312\Lib\site-packages\websockets\legacy\protocol.py:933> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[Task.task_wakeup(), Task.task_wakeup()]> cb=[_chain_future.<locals>._call_set_state() at C:\Users\Ankit\AppData\Local\Programs\Python\Python312\Lib\asyncio\futures.py:394]>
