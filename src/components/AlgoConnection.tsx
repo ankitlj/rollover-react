@@ -41,6 +41,18 @@ function calcExpiryDays(): number {
   return Math.max(0, Math.ceil((expiry.getTime() - ist.getTime()) / 86400000));
 }
 
+function isExpired(): boolean {
+  const ist = getIstNow();
+  const year = ist.getUTCFullYear();
+  const month = ist.getUTCMonth();
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const dow = new Date(Date.UTC(year, month, lastDay)).getUTCDay();
+  let lastThursday = lastDay - ((dow - 4 + 7) % 7);
+  if (lastThursday <= 0) lastThursday += 7;
+  const expiry = new Date(Date.UTC(year, month, lastThursday, 15, 30));
+  return ist.getTime() > expiry.getTime();
+}
+
 function getCurrentMonthStr(): string {
   const ist = getIstNow();
   return MONTH_NAMES[ist.getUTCMonth()] + ' ' + ist.getUTCFullYear();
@@ -65,6 +77,7 @@ export default function AlgoConnection() {
 
   const onInit = useCallback((stocks: WsStockData[], status: WsStatus) => {
     const expiryDays = calcExpiryDays();
+    const expired = isExpired();
     const alerts = stocks.map((s) => {
       const resolved = resolveSym(s.stock);
       const info = findStockInfo(s.stock);
@@ -81,7 +94,7 @@ export default function AlgoConnection() {
         ageSec: 0,
         expiryDays,
         lastUpdated: hasData ? parseTs(s.timestamp) : new Date(0),
-        status: hasData ? 'Available' : 'Awaiting Data',
+        status: expired ? 'Expired' : hasData ? 'Available' : 'Awaiting Data',
       };
     });
     setAlerts(alerts);
@@ -95,16 +108,19 @@ export default function AlgoConnection() {
   }, [setAlerts, setMarketOpen]);
 
   const onSnapshot = useCallback((stocks: WsStockData[], _timestamp: string) => {
+    const expired = isExpired();
     setAlerts(prev => {
       return prev.map(a => {
         const match = stocks.find(s => resolveSym(s.stock) === a.sym);
         if (!match || match.current_spread === null) return a;
+        const newStatus = expired ? 'Expired' : (a.status === 'Instruction Sent' || a.status === 'Expired' || a.status === 'Cancelled' ? a.status : 'Available');
         return {
           ...a,
           current: match.current_spread!,
           discount: match.discount_pct!,
           lastUpdated: parseTs(match.timestamp),
           ageSec: 0,
+          status: newStatus,
         };
       });
     });
