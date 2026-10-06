@@ -112,7 +112,12 @@ def run():
         reporter.record_alert(alert)
         broadcaster.broadcast_alert(alert)
 
+    def on_alert_expired(stock: str, final_spread: float, timestamp: str):
+        log.info("ALERT EXPIRED | %s | final_spread=%.2f", stock, final_spread)
+        broadcaster.broadcast_alert_expired(stock, final_spread, timestamp)
+
     orchestrator._on_alert = on_alert
+    orchestrator._on_alert_expired = on_alert_expired
 
     def signal_handler(sig, frame):
         log.info(f"Shutdown signal ({sig})")

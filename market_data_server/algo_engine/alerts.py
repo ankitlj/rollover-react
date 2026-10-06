@@ -34,14 +34,14 @@ class AlertEngine:
         
         self._alerts: List[Alert] = []
     
-    def process_snapshot(self, snapshot: SpreadSnapshot) -> Optional[Alert]:
+    def process_snapshot(self, snapshot: SpreadSnapshot):
         if snapshot is None:
-            return None
+            return None, None
         
         stock = snapshot.stock
         threshold = self._thresholds.get(stock)
         if threshold is None:
-            return None
+            return None, None
         
         currently_above = snapshot.discount_pct >= threshold
         
@@ -72,10 +72,18 @@ class AlertEngine:
                     f"ALERT: {stock} | discount={snapshot.discount_pct:.2f}% >= {threshold}% | "
                     f"spread={snapshot.spread:.2f} | trigger#{self._trigger_counts[stock]}"
                 )
-                return alert
+                return alert, None
+            
+            expired_stock = None
+            if not currently_above and prev_above:
+                expired_stock = stock
+                log.info(
+                    f"ALERT EXPIRED: {stock} | discount={snapshot.discount_pct:.2f}% < {threshold}% | "
+                    f"spread={snapshot.spread:.2f}"
+                )
             
             self._prev_above_threshold[stock] = currently_above
-            return None
+            return None, expired_stock
     
     def get_trigger_count(self, stock: str) -> int:
         with self._lock:

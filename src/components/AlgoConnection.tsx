@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { useAlgoWS, type WsStockData, type WsStatus, type WsAlertData } from '../hooks/useAlgoWS';
+import { useAlgoWS, type WsStockData, type WsStatus, type WsAlertData, type WsAlertExpiredData } from '../hooks/useAlgoWS';
 import { useStore } from '../store';
 import { STOCKS } from '../data';
 
@@ -111,9 +111,10 @@ export default function AlgoConnection() {
     const expired = isExpired();
     setAlerts(prev => {
       return prev.map(a => {
+        if (a.status === 'Expired' || a.status === 'Cancelled') return a;
         const match = stocks.find(s => resolveSym(s.stock) === a.sym);
         if (!match || match.current_spread === null) return a;
-        const newStatus = expired ? 'Expired' : (a.status === 'Instruction Sent' || a.status === 'Expired' || a.status === 'Cancelled' ? a.status : 'Available');
+        const newStatus = expired ? 'Expired' : (a.status === 'Instruction Sent' ? a.status : 'Available');
         return {
           ...a,
           current: match.current_spread!,
@@ -145,9 +146,22 @@ export default function AlgoConnection() {
         status: a.status === 'Instruction Sent' ? a.status : 'Available',
       };
     }));
-    addToast('info', `Alert: ${resolved}`, `Discount ${data.discount_pct.toFixed(1)}% >= ${data.threshold}%`);
+    addToast('info', `Alert: ${resolved}`);
     prevAlertsRef.current.set(resolved, data.discount_pct);
   }, [setAlerts, addToast]);
+
+  const onAlertExpired = useCallback((data: WsAlertExpiredData) => {
+    const resolved = resolveSym(data.stock);
+    setAlerts(prev => prev.map(a => {
+      if (a.sym !== resolved) return a;
+      return {
+        ...a,
+        current: data.final_spread,
+        lastUpdated: parseTs(data.timestamp),
+        status: 'Expired',
+      };
+    }));
+  }, [setAlerts]);
 
   const onStatus = useCallback((status: WsStatus) => {
     setMarketOpen(status.market_open);
@@ -157,7 +171,7 @@ export default function AlgoConnection() {
     setApiStatus(status);
   }, [setApiStatus]);
 
-  useAlgoWS({ onInit, onSnapshot, onAlert, onStatus, onConnectionChange });
+  useAlgoWS({ onInit, onSnapshot, onAlert, onAlertExpired, onStatus, onConnectionChange });
 
   return null;
 }

@@ -34,10 +34,17 @@ export interface WsAlertData {
   timestamp: string;
 }
 
+export interface WsAlertExpiredData {
+  stock: string;
+  final_spread: number;
+  timestamp: string;
+}
+
 interface UseAlgoWSHandlers {
   onInit: (stocks: WsStockData[], status: WsStatus) => void;
   onSnapshot: (stocks: WsStockData[], timestamp: string) => void;
   onAlert: (data: WsAlertData) => void;
+  onAlertExpired: (data: WsAlertExpiredData) => void;
   onStatus: (status: WsStatus) => void;
   onConnectionChange: (status: 'connected' | 'reconnecting' | 'disconnected') => void;
 }
@@ -95,6 +102,9 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
               break;
             case 'alert':
               handlersRef.current.onAlert(msg);
+              break;
+            case 'alert_expired':
+              handlersRef.current.onAlertExpired(msg);
               break;
             case 'status':
               handlersRef.current.onStatus(msg);

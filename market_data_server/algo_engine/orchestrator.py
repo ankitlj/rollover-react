@@ -23,6 +23,7 @@ class AlgoOrchestrator:
         alerts: AlertEngine,
         session: SessionEngine,
         on_alert: Optional[Callable[[Alert], None]] = None,
+        on_alert_expired: Optional[Callable[[str, float, str], None]] = None,
     ):
         self._bridge = bridge
         self._validator = validator
@@ -30,6 +31,7 @@ class AlgoOrchestrator:
         self._alerts = alerts
         self._session = session
         self._on_alert = on_alert
+        self._on_alert_expired = on_alert_expired
 
         self._lock = threading.Lock()
         self._cycle_count: int = 0
@@ -79,7 +81,7 @@ class AlgoOrchestrator:
             snapshot = self._compute_stock(stock)
             if snapshot is not None:
                 computed += 1
-                alert = self._alerts.process_snapshot(snapshot)
+                alert, expired_stock = self._alerts.process_snapshot(snapshot)
                 if alert is not None and self._session.should_fire_alerts():
                     with self._lock:
                         self._alerts_fired += 1
@@ -88,6 +90,15 @@ class AlgoOrchestrator:
                             self._on_alert(alert)
                         except Exception:
                             log.exception("on_alert callback error for %s", stock)
+                if expired_stock is not None and self._on_alert_expired is not None:
+                    try:
+                        self._on_alert_expired(
+                            expired_stock,
+                            round(snapshot.spread, 2),
+                            snapshot.timestamp,
+                        )
+                    except Exception:
+                        log.exception("on_alert_expired callback error for %s", expired_stock)
             else:
                 skipped += 1
 

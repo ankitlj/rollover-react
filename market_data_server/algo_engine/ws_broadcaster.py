@@ -201,6 +201,17 @@ class WSBroadcaster:
         }, default=str)
         asyncio.run_coroutine_threadsafe(self._send_to_all(msg), self._loop)
 
+    def broadcast_alert_expired(self, stock: str, final_spread: float, timestamp: str):
+        if self._loop is None:
+            return
+        msg = json.dumps({
+            "type": "alert_expired",
+            "stock": stock,
+            "final_spread": final_spread,
+            "timestamp": timestamp,
+        }, default=str)
+        asyncio.run_coroutine_threadsafe(self._send_to_all(msg), self._loop)
+
     async def _send_to_all(self, message: str):
         if not self._clients:
             return
