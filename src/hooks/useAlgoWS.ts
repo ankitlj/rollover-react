@@ -1,9 +1,58 @@
 import { useEffect, useRef, useCallback } from 'react';
 
 const WS_URL = 'ws://127.0.0.1:8766';
+const HEALTH_API_URL = 'http://127.0.0.1:8767/health';
 const RECONNECT_BASE_MS = 2000;
 const RECONNECT_MAX_MS = 30000;
 const PING_INTERVAL_MS = 20000;
+const HEALTH_STORAGE_KEY = 'rs-connection-health';
+const MAX_HEALTH_EVENTS = 500;
+const HEALTH_SYNC_INTERVAL_MS = 300000;
+
+interface HealthEvent {
+  event: string;
+  timestamp: string;
+  details?: Record<string, unknown>;
+}
+
+function logHealthEvent(event: string, details?: Record<string, unknown>) {
+  try {
+    const stored = localStorage.getItem(HEALTH_STORAGE_KEY);
+    let events: HealthEvent[] = stored ? JSON.parse(stored) : [];
+
+    events.push({
+      event,
+      timestamp: new Date().toISOString(),
+      ...(details ? { details } : {}),
+    });
+
+    if (events.length > MAX_HEALTH_EVENTS) {
+      events = events.slice(-MAX_HEALTH_EVENTS);
+    }
+
+    localStorage.setItem(HEALTH_STORAGE_KEY, JSON.stringify(events));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function syncHealthToBackend() {
+  try {
+    const stored = localStorage.getItem(HEALTH_STORAGE_KEY);
+    if (!stored) return;
+
+    const events = JSON.parse(stored);
+    fetch(HEALTH_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ events, synced_at: new Date().toISOString() }),
+    }).catch(() => {
+      // ignore sync errors
+    });
+  } catch {
+    // ignore errors
+  }
+}
 
 export interface WsStockData {
   stock: string;
@@ -54,6 +103,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
   const reconnectAttempt = useRef(0);
   const reconnectTimer = useRef<number>(0);
   const pingTimer = useRef<number>(0);
+  const healthSyncTimer = useRef<number>(0);
   const handlersRef = useRef(handlers);
   const mountedRef = useRef(true);
 
@@ -68,6 +118,10 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
       clearTimeout(reconnectTimer.current);
       reconnectTimer.current = 0;
     }
+    if (healthSyncTimer.current) {
+      clearInterval(healthSyncTimer.current);
+      healthSyncTimer.current = 0;
+    }
   }, []);
 
   const connect = useCallback(() => {
@@ -81,6 +135,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
         if (!mountedRef.current) { ws.close(); return; }
         reconnectAttempt.current = 0;
         handlersRef.current.onConnectionChange('connected');
+        logHealthEvent('connected');
 
         pingTimer.current = window.setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
@@ -93,6 +148,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
         if (!mountedRef.current) return;
         try {
           const msg = JSON.parse(event.data);
+          logHealthEvent('message_received', { type: msg.type });
           switch (msg.type) {
             case 'init':
               handlersRef.current.onInit(msg.stocks, msg.status);
@@ -112,8 +168,8 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
             case 'pong':
               break;
           }
-        } catch {
-          // ignore malformed messages
+        } catch (e) {
+          logHealthEvent('message_parse_error', { error: String(e) });
         }
       };
 
@@ -124,6 +180,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
           pingTimer.current = 0;
         }
         handlersRef.current.onConnectionChange('disconnected');
+        logHealthEvent('disconnected');
 
         if (mountedRef.current) {
           const delay = Math.min(
@@ -132,6 +189,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
           );
           reconnectAttempt.current++;
           handlersRef.current.onConnectionChange('reconnecting');
+          logHealthEvent('reconnecting', { attempt: reconnectAttempt.current, delay_ms: delay });
           reconnectTimer.current = window.setTimeout(() => {
             if (mountedRef.current) connect();
           }, delay);
@@ -139,9 +197,10 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
       };
 
       ws.onerror = () => {
-        // onclose will fire after onerror
+        logHealthEvent('connection_error');
       };
-    } catch {
+    } catch (e) {
+      logHealthEvent('connect_exception', { error: String(e) });
       if (!mountedRef.current) return;
       const delay = Math.min(
         RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt.current),
@@ -149,6 +208,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
       );
       reconnectAttempt.current++;
       handlersRef.current.onConnectionChange('reconnecting');
+      logHealthEvent('reconnecting', { attempt: reconnectAttempt.current, delay_ms: delay });
       reconnectTimer.current = window.setTimeout(() => {
         if (mountedRef.current) connect();
       }, delay);
@@ -158,6 +218,13 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
   useEffect(() => {
     mountedRef.current = true;
     connect();
+
+    healthSyncTimer.current = window.setInterval(() => {
+      if (mountedRef.current) {
+        syncHealthToBackend();
+      }
+    }, HEALTH_SYNC_INTERVAL_MS);
+
     return () => {
       mountedRef.current = false;
       clearTimers();

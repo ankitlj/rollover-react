@@ -31,6 +31,7 @@ from algo_engine.session import SessionEngine
 from algo_engine.orchestrator import AlgoOrchestrator
 from algo_engine.algo_reporter import AlgoReporter
 from algo_engine.ws_broadcaster import WSBroadcaster
+from algo_engine.pipeline_reporter import PipelineReporter
 
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -96,6 +97,7 @@ def run():
 
     reporter = AlgoReporter(orchestrator, bridge)
     broadcaster = WSBroadcaster(spread, orchestrator, bridge, session)
+    pipeline_reporter = PipelineReporter()
 
     def on_alert(alert: Alert):
         log.info(
@@ -179,7 +181,21 @@ def run():
             log.info("Daily report generated")
         except Exception:
             log.exception("Failed to generate daily report")
-        
+
+        log.info("Generating WS bridge report...")
+        try:
+            ws_report = broadcaster.generate_report()
+            log.info("WS bridge report generated")
+        except Exception:
+            log.exception("Failed to generate WS bridge report")
+
+        log.info("Generating pipeline report...")
+        try:
+            pipeline_report = pipeline_reporter.generate_report()
+            log.info("Pipeline report generated")
+        except Exception:
+            log.exception("Failed to generate pipeline report")
+
         log.info("ALGO ENGINE STOPPED")
 
 
