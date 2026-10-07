@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 
-const WS_URL = 'ws://127.0.0.1:8766';
-const HEALTH_API_URL = 'http://127.0.0.1:8767/health';
+const WS_URL = 'wss://rollover-react-production.up.railway.app';
+const HEALTH_API_URL = 'https://rollover-react-production-a68d.up.railway.app/health';
 const RECONNECT_BASE_MS = 2000;
 const RECONNECT_MAX_MS = 30000;
 const PING_INTERVAL_MS = 20000;

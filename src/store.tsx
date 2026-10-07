@@ -106,7 +106,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const loadDataFromBackend = useCallback(async () => {
     try {
-      const resp = await fetch('http://127.0.0.1:8767/data/load');
+      const resp = await fetch('https://rollover-react-production-a68d.up.railway.app/data/load');
       if (!resp.ok) return;
       const data = await resp.json();
       const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
@@ -147,7 +147,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const saveToBackend = useCallback(async (table: string, content: any) => {
     try {
-      await fetch('http://127.0.0.1:8767/data/save', {
+      await fetch('https://rollover-react-production-a68d.up.railway.app/data/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table, content })
@@ -159,7 +159,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const saveSettingsToBackend = useCallback(async (settingsData: any) => {
     try {
-      await fetch('http://127.0.0.1:8767/data/settings', {
+      await fetch('https://rollover-react-production-a68d.up.railway.app/data/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settingsData)
