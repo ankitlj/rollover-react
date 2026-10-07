@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useStore } from '../store';
-import { EXPIRY_CUR, EXPIRY_NEXT, RS } from '../data';
+import { RS } from '../data';
 
 interface Props {
   alertId: string;
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function ExecModal({ alertId, onClose }: Props) {
-  const { alerts, resolvedStocks, sendInstruction, addToast, addNotification } = useStore();
+  const { alerts, resolvedStocks, sendInstruction, addToast, addNotification, expiryCur, expiryNext } = useStore();
   const a = alerts.find(x => x.id === alertId);
   const stock = a ? resolvedStocks.find(s => s.sym === a.sym) : null;
   const [lots, setLots] = useState(a?.lotsAvailable ?? 0);
@@ -47,14 +47,14 @@ export default function ExecModal({ alertId, onClose }: Props) {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Send Instruction to Dealer</h3>
-          <p>{a.sym} | Expiry: {EXPIRY_CUR}</p>
+          <p>{a.sym} | Expiry: {expiryCur || '—'}</p>
         </div>
         <div className="modal-body">
           <div className="modal-grid">
             <div className="modal-field"><label>Stock</label><div className="val">{a.sym}</div></div>
             <div className="modal-field"><label>Sector</label><div className="val">{a.sector}</div></div>
-            <div className="modal-field"><label>Current-Month Contract</label><div className="val">{EXPIRY_CUR} FUT</div></div>
-            <div className="modal-field"><label>Next-Month Contract</label><div className="val">{EXPIRY_NEXT} FUT</div></div>
+            <div className="modal-field"><label>Current-Month Contract</label><div className="val">{expiryCur || '—'} FUT</div></div>
+            <div className="modal-field"><label>Next-Month Contract</label><div className="val">{expiryNext || '—'} FUT</div></div>
             <div className="modal-field"><label>Lots Advices</label><div className="val">{a.lotsAvailable}</div></div>
             <div className="modal-field"><label>Lot Size</label><div className="val">{stock.lot}</div></div>
             <div className="modal-field"><label>Current Spread</label><div className="val">{a.current.toFixed(2)}</div></div>

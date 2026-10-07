@@ -82,6 +82,12 @@ class TickBridge:
         with self._lock:
             return list(self._stocks)
 
+    @property
+    def expiries(self) -> dict:
+        with self._lock:
+            meta = self._metadata or {}
+        return {"current": meta.get("current_expiry"), "next": meta.get("next_expiry")}
+
     def _on_metadata(self, msg: dict):
         tokens = msg.get("tokens") or {}
         parsed = {}

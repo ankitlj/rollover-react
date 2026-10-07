@@ -1,12 +1,12 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../store';
-import { STOCKS, EXPIRY_CUR } from '../data';
+import { STOCKS } from '../data';
 import ExecModal from './ExecModal';
 
 const SECTORS = [...new Set(STOCKS.map(s => s.sector))].sort();
 
 export default function AlertsPage() {
-  const { alerts, addToast, marketOpen } = useStore();
+  const { alerts, addToast, marketOpen, expiryCur } = useStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sectorFilter, setSectorFilter] = useState('all');
@@ -84,7 +84,7 @@ export default function AlertsPage() {
 
   const exportCSV = () => {
     const headers = ['Stock', 'Sector', 'Expiry', 'Initial', 'Current', 'Discount %', 'Lots', 'Status'];
-    const rows = active.map(a => [a.sym, a.sector, EXPIRY_CUR, a.initial, a.current, a.discount, a.lotsAvailable, a.status]);
+    const rows = active.map(a => [a.sym, a.sector, expiryCur || '—', a.initial, a.current, a.discount, a.lotsAvailable, a.status]);
     let csv = headers.join(',') + '\n' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -94,7 +94,7 @@ export default function AlertsPage() {
 
   const exportExpiredCSV = () => {
     const headers = ['Stock', 'Expiry', 'Initial', 'Final', 'Status'];
-    const rows = expired.map(a => [a.sym, EXPIRY_CUR, a.initial, a.current, a.status]);
+    const rows = expired.map(a => [a.sym, expiryCur || '—', a.initial, a.current, a.status]);
     let csv = headers.join(',') + '\n' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -162,7 +162,7 @@ export default function AlertsPage() {
                 return (
                   <tr key={a.id} className={`row-enter ${rowClass}`}>
                     <td><span className="live-dot" /><span className="stock-name">{a.sym}</span><div className="stock-meta">{a.sector}</div></td>
-                    <td>{EXPIRY_CUR}</td>
+                    <td>{expiryCur || '—'}</td>
                     <td>{a.initial.toFixed(2)}</td>
                     <td className={flash ? (flash === 'up' ? 'cell-flash-green' : 'cell-flash-red') : ''}>{a.current.toFixed(2)}</td>
                     <td><span className={`discount-badge ${discClass}`}>{a.discount.toFixed(1)}%</span></td>
@@ -203,7 +203,7 @@ export default function AlertsPage() {
               {expired.length > 0 ? expired.map(a => (
                 <tr key={a.id}>
                   <td><span className="stock-name">{a.sym}</span></td>
-                  <td>{EXPIRY_CUR}</td>
+                  <td>{expiryCur || '—'}</td>
                   <td>{a.initial.toFixed(2)}</td>
                   <td>{a.current.toFixed(2)}</td>
                   <td><span className="badge badge-expired">{a.status}</span></td>

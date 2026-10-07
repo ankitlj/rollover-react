@@ -89,8 +89,13 @@ export interface WsAlertExpiredData {
   timestamp: string;
 }
 
+export interface WsExpiries {
+  current: string | null;
+  next: string | null;
+}
+
 interface UseAlgoWSHandlers {
-  onInit: (stocks: WsStockData[], status: WsStatus) => void;
+  onInit: (stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null) => void;
   onSnapshot: (stocks: WsStockData[], timestamp: string) => void;
   onAlert: (data: WsAlertData) => void;
   onAlertExpired: (data: WsAlertExpiredData) => void;
@@ -151,7 +156,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
           logHealthEvent('message_received', { type: msg.type });
           switch (msg.type) {
             case 'init':
-              handlersRef.current.onInit(msg.stocks, msg.status);
+              handlersRef.current.onInit(msg.stocks, msg.status, msg.expiries ?? null);
               break;
             case 'snapshot':
               handlersRef.current.onSnapshot(msg.stocks, msg.timestamp);

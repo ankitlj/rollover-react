@@ -350,6 +350,8 @@ class WSBroadcaster:
         phase = self._session.current_phase()
         self._last_phase = phase
 
+        expiries = self._bridge.expiries or {}
+        log.info("Init expiries: current=%s, next=%s", expiries.get("current"), expiries.get("next"))
         msg = {
             "type": "init",
             "stocks": stocks,
@@ -357,6 +359,10 @@ class WSBroadcaster:
                 "phase": phase,
                 "is_connected": self._bridge.connected,
                 "market_open": phase in ("WARMUP", "ACTIVE", "CLOSING"),
+            },
+            "expiries": {
+                "current": expiries.get("current"),
+                "next": expiries.get("next"),
             },
         }
         return json.dumps(msg, default=str)

@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { useAlgoWS, type WsStockData, type WsStatus, type WsAlertData, type WsAlertExpiredData } from '../hooks/useAlgoWS';
+import { useAlgoWS, type WsStockData, type WsStatus, type WsAlertData, type WsAlertExpiredData, type WsExpiries } from '../hooks/useAlgoWS';
 import { useStore } from '../store';
 import { STOCKS } from '../data';
 
@@ -12,7 +12,7 @@ function resolveSym(sym: string): string {
 
 function findStockInfo(sym: string) {
   const resolved = resolveSym(sym);
-  return STOCKS.find(s => s.sym === resolved) || { sym: resolved, sector: 'Unknown', lot: 0 };
+  return STOCKS.find(s => s.sym === resolved) || { sym: resolved, sector: 'Unknown', lot: 0, price: 0, lotsHeld: 0 };
 }
 
 function parseTs(ts: string | null): Date {
@@ -67,7 +67,7 @@ function getNextMonthStr(): string {
 }
 
 export default function AlgoConnection() {
-  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend } = useStore();
+  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend, setExpiries } = useStore();
   const prevAlertsRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
@@ -76,29 +76,8 @@ export default function AlgoConnection() {
     loadDataFromBackend();
   }, [setCurrentMonth, setNextMonth, loadDataFromBackend]);
 
-  const onInit = useCallback((stocks: WsStockData[], status: WsStatus) => {
-    const expiryDays = calcExpiryDays();
-    const expired = isExpired();
-    const alerts = stocks.map((s) => {
-      const resolved = resolveSym(s.stock);
-      const info = findStockInfo(s.stock);
-      const hasData = s.current_spread !== null && s.discount_pct !== null;
-      return {
-        id: `ws-${resolved}`,
-        sym: resolved,
-        sector: info.sector,
-        lot: info.lot,
-        initial: s.initial_spread,
-        current: hasData ? s.current_spread! : 0,
-        discount: hasData ? s.discount_pct! : 0,
-        lotsAvailable: 0,
-        ageSec: 0,
-        expiryDays,
-        lastUpdated: hasData ? parseTs(s.timestamp) : new Date(0),
-        status: expired ? 'Expired' : hasData ? 'Available' : 'Awaiting Data',
-      };
-    });
-    setAlerts(alerts);
+  const onInit = useCallback((stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null) => {
+    if (expiries?.current) setExpiries(expiries.current, expiries.next ?? '');
     setMarketOpen(status.market_open);
 
     const map = new Map<string, number>();
@@ -106,7 +85,7 @@ export default function AlgoConnection() {
       if (s.discount_pct !== null) map.set(resolveSym(s.stock), s.discount_pct);
     }
     prevAlertsRef.current = map;
-  }, [setAlerts, setMarketOpen]);
+  }, [setExpiries, setMarketOpen]);
 
   const onSnapshot = useCallback((stocks: WsStockData[], _timestamp: string) => {
     const expired = isExpired();
@@ -144,17 +123,36 @@ export default function AlgoConnection() {
 
   const onAlert = useCallback((data: WsAlertData) => {
     const resolved = resolveSym(data.stock);
-    setAlerts(prev => prev.map(a => {
-      if (a.sym !== resolved) return a;
-      return {
-        ...a,
+    const info = findStockInfo(data.stock);
+    setAlerts(prev => {
+      const existing = prev.find(a => a.sym === resolved);
+      if (existing) {
+        return prev.map(a => a.sym !== resolved ? a : {
+          ...a,
+          current: data.spread,
+          discount: data.discount_pct,
+          lastUpdated: parseTs(data.timestamp),
+          ageSec: 0,
+          status: a.status === 'Instruction Sent' ? a.status : 'Available',
+        });
+      }
+      return [...prev, {
+        id: `ws-${resolved}`,
+        sym: resolved,
+        sector: info.sector,
+        lot: info.lot,
+        price: info.price,
+        initial: data.initial_spread,
         current: data.spread,
+        spreadAtSignal: data.spread,
         discount: data.discount_pct,
-        lastUpdated: parseTs(data.timestamp),
+        lotsAvailable: info.lotsHeld ?? 0,
         ageSec: 0,
-        status: a.status === 'Instruction Sent' ? a.status : 'Available',
-      };
-    }));
+        expiryDays: calcExpiryDays(),
+        lastUpdated: parseTs(data.timestamp),
+        status: 'Available',
+      }];
+    });
     addToast('info', `Alert: ${resolved}`);
     prevAlertsRef.current.set(resolved, data.discount_pct);
   }, [setAlerts, addToast]);

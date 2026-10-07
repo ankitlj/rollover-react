@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
 import type { Alert, LogEntry, Correction, Settings, Stock, Toast, Notification, PageId } from './types';
-import { createInitialLogEntries, DEFAULT_SETTINGS, STOCKS, EXPIRY_CUR } from './data';
+import { createInitialLogEntries, DEFAULT_SETTINGS, STOCKS } from './data';
 
 interface StoreState {
   alerts: Alert[];
@@ -20,6 +20,8 @@ interface StoreState {
   marketOpen: boolean;
   currentMonth: string;
   nextMonth: string;
+  expiryCur: string;
+  expiryNext: string;
 }
 
 interface StoreActions {
@@ -53,6 +55,7 @@ interface StoreActions {
   setMarketOpen: (open: boolean) => void;
   setCurrentMonth: (month: string) => void;
   setNextMonth: (month: string) => void;
+  setExpiries: (cur: string, next: string) => void;
   resolvedStocks: Stock[];
 }
 
@@ -84,6 +87,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [marketOpen, setMarketOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState('');
   const [nextMonth, setNextMonth] = useState('');
+  const [expiryCur, setExpiryCur] = useState('');
+  const [expiryNext, setExpiryNext] = useState('');
   const toastIdRef = useRef(0);
   const notifIdRef = useRef(0);
 
@@ -117,7 +122,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       
       if (data[activeKey] && Array.isArray(data[activeKey])) {
         setAlerts(prev => {
-          const loaded = data[activeKey] as Alert[];
+          const loaded = (data[activeKey] as Alert[]).map(a => ({
+            ...a,
+            lastUpdated: new Date(a.lastUpdated as unknown as string),
+          }));
           const existingIds = new Set(prev.map(a => a.id));
           const newAlerts = loaded.filter(a => !existingIds.has(a.id));
           return [...prev, ...newAlerts];
@@ -223,7 +231,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       sector: a.sector,
       lotSize: stock?.lot,
       price: stock?.price,
-      expiry: EXPIRY_CUR,
+      expiry: expiryCur,
       lotsHeld: a.lotsAvailable,
       lotsInstructed: lots,
       lotsFilled: 0,
@@ -251,7 +259,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
 
     setAlerts(prev => prev.map(x => x.id === alertId ? { ...x, status: 'Instruction Sent', executed: true } : x));
-  }, [alerts, resolvedStocks, saveToBackend]);
+  }, [alerts, resolvedStocks, saveToBackend, expiryCur]);
 
   const saveEod = useCallback((entryId: string, data: { filled: number; partial: number; notFilled: number; fillPrice: number; finalSpread: number; remarks: string }) => {
     setLogEntries(prev => {
@@ -397,15 +405,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setExpiries = useCallback((cur: string, next: string) => {
+    setExpiryCur(cur);
+    setExpiryNext(next);
+  }, []);
+
   const value = {
     alerts, logEntries, corrections, finalisedDays, settings, stockOverrides, resolvedStocks,
     currentPage, currentTheme, currentUser, toasts, notifications,
-    isLoggedIn, showTransition, apiStatus, marketOpen, currentMonth, nextMonth,
+    isLoggedIn, showTransition, apiStatus, marketOpen, currentMonth, nextMonth, expiryCur, expiryNext,
     setCurrentPage, toggleTheme, login, logout, completeTransition, loadDataFromBackend,
     saveToBackend, saveSettingsToBackend,
     sendInstruction, saveEod, saveCorrection, addCorrectionBatch, finaliseDay,
     finaliseEntry, updateDealerRemarks, setStatus, updateLogField,
-    updateSettings, resetSettings, updateStock,
+    updateSettings, resetSettings, updateStock, setExpiries,
     addToast, removeToast, addNotification, removeNotification,
     updateAlerts, setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth
   };
