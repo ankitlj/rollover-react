@@ -14,7 +14,7 @@ from .config import IST, INITIAL_SPREADS, STOCK_CONFIG, SAMPLE_INTERVAL_SECONDS
 log = logging.getLogger("algo_broadcaster")
 
 BROADCAST_PORT = 8766
-BROADCAST_HOST = "127.0.0.1"
+BROADCAST_HOST = "0.0.0.0"
 HEALTH_API_PORT = 8767
 DATA_DIR = Path(__file__).parent.parent / "data"
 
