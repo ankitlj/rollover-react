@@ -19,11 +19,12 @@ const SETTING_GROUPS = [
 ];
 
 export default function SettingsPage() {
-  const { settings, resolvedStocks, updateSettings, resetSettings, updateStock, addToast, addNotification } = useStore();
+  const { settings, stockOverrides, resolvedStocks, updateSettings, resetSettings, updateStock, addToast, addNotification, saveSettingsToBackend } = useStore();
   const [editLot, setEditLot] = useState<Record<string, string>>({});
   const [editHeld, setEditHeld] = useState<Record<string, string>>({});
 
   const handleSave = () => {
+    saveSettingsToBackend({ settings, stockOverrides });
     addToast('success', 'Settings saved');
     addNotification('success', 'Settings Updated', 'Configuration saved successfully');
   };

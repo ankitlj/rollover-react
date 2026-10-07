@@ -1,0 +1,185 @@
+2026-10-07 09:00:00 INFO Algo engine starting
+2026-10-07 09:00:01 INFO Bridge connected
+2026-10-07 09:15:00 INFO Cycle 100 completed
+2026-10-07 10:30:00 ERROR Spread calculation failed for RELIANCE
+2026-10-07 15:30:00 INFO Shutting down
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  ============================================================
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  ALGO ENGINE STARTING
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  Date: 2026-10-07 13:34:47 IST
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  Stocks: 19 | WS: ws://127.0.0.1:8765
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  Sample interval: 60s
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  ============================================================
+2026-10-07 13:34:47.757 [MainThread  ] algo_run       INFO  Bridge connecting to ws://127.0.0.1:8765 ...
+2026-10-07 13:34:57.774 [MainThread  ] algo_run       WARNING Not connected yet — will keep retrying in background
+2026-10-07 13:34:57.774 [algo-orchestrator] algo_session   INFO  Session phase: ACTIVE
+2026-10-07 13:34:57.774 [MainThread  ] algo_orchestrator INFO  Algo orchestrator started (interval=60s)
+2026-10-07 13:34:57.774 [MainThread  ] algo_reporter  INFO  AlgoReporter started
+2026-10-07 13:34:57.780 [MainThread  ] algo_run       INFO  ALGO ENGINE RUNNING — Ctrl+C to stop
+2026-10-07 13:34:57.801 [algo-ws-broadcast] websockets.server INFO  server listening on 127.0.0.1:8766
+2026-10-07 13:34:57.801 [algo-ws-broadcast] algo_broadcaster INFO  Algo WS broadcaster listening on ws://127.0.0.1:8766
+2026-10-07 13:34:57.820 [health-api  ] algo_broadcaster INFO  Health API listening on http://127.0.0.1:8767/health
+2026-10-07 13:35:27.792 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=1 | alerts=0 | stocks_computed=0 stocks_skipped=19 | bridge_ticks=0 connected=False
+2026-10-07 13:37:49.817 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=2 | alerts=0 | stocks_computed=0 stocks_skipped=38 | bridge_ticks=0 connected=False
+2026-10-07 13:38:19.830 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=2 | alerts=0 | stocks_computed=0 stocks_skipped=38 | bridge_ticks=0 connected=False
+2026-10-07 13:38:49.845 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=3 | alerts=0 | stocks_computed=0 stocks_skipped=57 | bridge_ticks=0 connected=False
+2026-10-07 13:38:56.315 [health-api  ] algo_broadcaster INFO  Settings saved: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\data\settings.json
+2026-10-07 13:39:19.847 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=3 | alerts=0 | stocks_computed=0 stocks_skipped=57 | bridge_ticks=0 connected=False
+2026-10-07 13:39:30.033 [health-api  ] algo_broadcaster INFO  Settings saved: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\data\settings.json
+2026-10-07 13:39:49.855 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=4 | alerts=0 | stocks_computed=0 stocks_skipped=76 | bridge_ticks=0 connected=False
+2026-10-07 13:40:41.140 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=4 | alerts=0 | stocks_computed=0 stocks_skipped=76 | bridge_ticks=0 connected=False
+2026-10-07 13:41:11.143 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=5 | alerts=0 | stocks_computed=0 stocks_skipped=95 | bridge_ticks=0 connected=False
+2026-10-07 13:41:41.156 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=5 | alerts=0 | stocks_computed=0 stocks_skipped=95 | bridge_ticks=0 connected=False
+2026-10-07 13:42:11.164 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=6 | alerts=0 | stocks_computed=0 stocks_skipped=114 | bridge_ticks=0 connected=False
+2026-10-07 13:42:41.173 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=6 | alerts=0 | stocks_computed=0 stocks_skipped=114 | bridge_ticks=0 connected=False
+2026-10-07 13:43:11.184 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=7 | alerts=0 | stocks_computed=0 stocks_skipped=133 | bridge_ticks=0 connected=False
+2026-10-07 13:43:57.053 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=7 | alerts=0 | stocks_computed=0 stocks_skipped=133 | bridge_ticks=0 connected=False
+2026-10-07 13:44:27.070 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=8 | alerts=0 | stocks_computed=0 stocks_skipped=152 | bridge_ticks=0 connected=False
+2026-10-07 13:44:57.079 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=8 | alerts=0 | stocks_computed=0 stocks_skipped=152 | bridge_ticks=0 connected=False
+2026-10-07 13:46:48.645 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=9 | alerts=0 | stocks_computed=0 stocks_skipped=171 | bridge_ticks=0 connected=False
+2026-10-07 13:47:18.660 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=9 | alerts=0 | stocks_computed=0 stocks_skipped=171 | bridge_ticks=0 connected=False
+2026-10-07 13:47:48.672 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=10 | alerts=0 | stocks_computed=0 stocks_skipped=190 | bridge_ticks=0 connected=False
+2026-10-07 13:48:18.677 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=10 | alerts=0 | stocks_computed=0 stocks_skipped=190 | bridge_ticks=0 connected=False
+2026-10-07 13:48:48.685 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=11 | alerts=0 | stocks_computed=0 stocks_skipped=209 | bridge_ticks=0 connected=False
+2026-10-07 13:49:18.701 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=11 | alerts=0 | stocks_computed=0 stocks_skipped=209 | bridge_ticks=0 connected=False
+2026-10-07 13:49:48.708 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=12 | alerts=0 | stocks_computed=0 stocks_skipped=228 | bridge_ticks=0 connected=False
+2026-10-07 13:50:18.717 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=12 | alerts=0 | stocks_computed=0 stocks_skipped=228 | bridge_ticks=0 connected=False
+2026-10-07 13:50:48.732 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=13 | alerts=0 | stocks_computed=0 stocks_skipped=247 | bridge_ticks=0 connected=False
+2026-10-07 13:51:46.053 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=13 | alerts=0 | stocks_computed=0 stocks_skipped=247 | bridge_ticks=0 connected=False
+2026-10-07 13:52:16.065 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=14 | alerts=0 | stocks_computed=0 stocks_skipped=266 | bridge_ticks=0 connected=False
+2026-10-07 13:52:46.076 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=14 | alerts=0 | stocks_computed=0 stocks_skipped=266 | bridge_ticks=0 connected=False
+2026-10-07 13:54:11.194 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=15 | alerts=0 | stocks_computed=0 stocks_skipped=285 | bridge_ticks=0 connected=False
+2026-10-07 13:54:41.202 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=15 | alerts=0 | stocks_computed=0 stocks_skipped=285 | bridge_ticks=0 connected=False
+2026-10-07 13:55:11.209 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=16 | alerts=0 | stocks_computed=0 stocks_skipped=304 | bridge_ticks=0 connected=False
+2026-10-07 13:58:29.651 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=16 | alerts=0 | stocks_computed=0 stocks_skipped=304 | bridge_ticks=0 connected=False
+2026-10-07 13:58:59.657 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=17 | alerts=0 | stocks_computed=0 stocks_skipped=323 | bridge_ticks=0 connected=False
+2026-10-07 13:59:29.659 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=17 | alerts=0 | stocks_computed=0 stocks_skipped=323 | bridge_ticks=0 connected=False
+2026-10-07 14:00:55.820 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=18 | alerts=0 | stocks_computed=0 stocks_skipped=342 | bridge_ticks=0 connected=False
+2026-10-07 14:01:25.833 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=18 | alerts=0 | stocks_computed=0 stocks_skipped=342 | bridge_ticks=0 connected=False
+2026-10-07 14:07:39.468 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=19 | alerts=0 | stocks_computed=0 stocks_skipped=361 | bridge_ticks=0 connected=False
+2026-10-07 14:08:09.478 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=19 | alerts=0 | stocks_computed=0 stocks_skipped=361 | bridge_ticks=0 connected=False
+2026-10-07 14:08:39.484 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=20 | alerts=0 | stocks_computed=0 stocks_skipped=380 | bridge_ticks=0 connected=False
+2026-10-07 14:11:31.718 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=20 | alerts=0 | stocks_computed=0 stocks_skipped=380 | bridge_ticks=0 connected=False
+2026-10-07 14:12:01.724 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=21 | alerts=0 | stocks_computed=0 stocks_skipped=399 | bridge_ticks=0 connected=False
+2026-10-07 14:12:31.731 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=21 | alerts=0 | stocks_computed=0 stocks_skipped=399 | bridge_ticks=0 connected=False
+2026-10-07 14:13:01.739 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=22 | alerts=0 | stocks_computed=0 stocks_skipped=418 | bridge_ticks=0 connected=False
+2026-10-07 14:13:31.743 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=22 | alerts=0 | stocks_computed=0 stocks_skipped=418 | bridge_ticks=0 connected=False
+2026-10-07 14:14:01.746 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=23 | alerts=0 | stocks_computed=0 stocks_skipped=437 | bridge_ticks=0 connected=False
+2026-10-07 14:14:31.762 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=23 | alerts=0 | stocks_computed=0 stocks_skipped=437 | bridge_ticks=0 connected=False
+2026-10-07 14:15:01.771 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=24 | alerts=0 | stocks_computed=0 stocks_skipped=456 | bridge_ticks=0 connected=False
+2026-10-07 14:15:31.782 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=24 | alerts=0 | stocks_computed=0 stocks_skipped=456 | bridge_ticks=0 connected=False
+2026-10-07 14:16:01.787 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=25 | alerts=0 | stocks_computed=0 stocks_skipped=475 | bridge_ticks=0 connected=False
+2026-10-07 14:16:31.797 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=25 | alerts=0 | stocks_computed=0 stocks_skipped=475 | bridge_ticks=0 connected=False
+2026-10-07 14:17:01.811 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=26 | alerts=0 | stocks_computed=0 stocks_skipped=494 | bridge_ticks=0 connected=False
+2026-10-07 14:17:31.820 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=26 | alerts=0 | stocks_computed=0 stocks_skipped=494 | bridge_ticks=0 connected=False
+2026-10-07 14:18:01.830 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=27 | alerts=0 | stocks_computed=0 stocks_skipped=513 | bridge_ticks=0 connected=False
+2026-10-07 14:18:31.833 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=27 | alerts=0 | stocks_computed=0 stocks_skipped=513 | bridge_ticks=0 connected=False
+2026-10-07 14:19:01.842 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=28 | alerts=0 | stocks_computed=0 stocks_skipped=532 | bridge_ticks=0 connected=False
+2026-10-07 14:19:31.855 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=28 | alerts=0 | stocks_computed=0 stocks_skipped=532 | bridge_ticks=0 connected=False
+2026-10-07 14:20:01.861 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=29 | alerts=0 | stocks_computed=0 stocks_skipped=551 | bridge_ticks=0 connected=False
+2026-10-07 14:20:31.871 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=29 | alerts=0 | stocks_computed=0 stocks_skipped=551 | bridge_ticks=0 connected=False
+2026-10-07 14:21:01.871 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=30 | alerts=0 | stocks_computed=0 stocks_skipped=570 | bridge_ticks=0 connected=False
+2026-10-07 14:21:31.872 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=30 | alerts=0 | stocks_computed=0 stocks_skipped=570 | bridge_ticks=0 connected=False
+2026-10-07 14:22:01.881 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=31 | alerts=0 | stocks_computed=0 stocks_skipped=589 | bridge_ticks=0 connected=False
+2026-10-07 14:22:31.892 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=31 | alerts=0 | stocks_computed=0 stocks_skipped=589 | bridge_ticks=0 connected=False
+2026-10-07 14:23:01.902 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=32 | alerts=0 | stocks_computed=0 stocks_skipped=608 | bridge_ticks=0 connected=False
+2026-10-07 14:23:31.911 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=32 | alerts=0 | stocks_computed=0 stocks_skipped=608 | bridge_ticks=0 connected=False
+2026-10-07 14:24:01.925 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=33 | alerts=0 | stocks_computed=0 stocks_skipped=627 | bridge_ticks=0 connected=False
+2026-10-07 14:24:56.365 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=33 | alerts=0 | stocks_computed=0 stocks_skipped=627 | bridge_ticks=0 connected=False
+2026-10-07 14:25:26.374 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=34 | alerts=0 | stocks_computed=0 stocks_skipped=646 | bridge_ticks=0 connected=False
+2026-10-07 14:25:56.376 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=34 | alerts=0 | stocks_computed=0 stocks_skipped=646 | bridge_ticks=0 connected=False
+2026-10-07 14:27:38.725 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=35 | alerts=0 | stocks_computed=0 stocks_skipped=665 | bridge_ticks=0 connected=False
+2026-10-07 14:28:08.731 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=35 | alerts=0 | stocks_computed=0 stocks_skipped=665 | bridge_ticks=0 connected=False
+2026-10-07 14:28:38.746 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=36 | alerts=0 | stocks_computed=0 stocks_skipped=684 | bridge_ticks=0 connected=False
+2026-10-07 14:29:08.758 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=36 | alerts=0 | stocks_computed=0 stocks_skipped=684 | bridge_ticks=0 connected=False
+2026-10-07 14:29:38.762 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=37 | alerts=0 | stocks_computed=0 stocks_skipped=703 | bridge_ticks=0 connected=False
+2026-10-07 14:30:08.773 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=37 | alerts=0 | stocks_computed=0 stocks_skipped=703 | bridge_ticks=0 connected=False
+2026-10-07 14:30:38.782 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=38 | alerts=0 | stocks_computed=0 stocks_skipped=722 | bridge_ticks=0 connected=False
+2026-10-07 14:31:08.793 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=38 | alerts=0 | stocks_computed=0 stocks_skipped=722 | bridge_ticks=0 connected=False
+2026-10-07 14:31:38.798 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=39 | alerts=0 | stocks_computed=0 stocks_skipped=741 | bridge_ticks=0 connected=False
+2026-10-07 14:32:08.810 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=39 | alerts=0 | stocks_computed=0 stocks_skipped=741 | bridge_ticks=0 connected=False
+2026-10-07 14:32:38.819 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=40 | alerts=0 | stocks_computed=0 stocks_skipped=760 | bridge_ticks=0 connected=False
+2026-10-07 14:33:08.831 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=40 | alerts=0 | stocks_computed=0 stocks_skipped=760 | bridge_ticks=0 connected=False
+2026-10-07 14:33:38.846 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=41 | alerts=0 | stocks_computed=0 stocks_skipped=779 | bridge_ticks=0 connected=False
+2026-10-07 14:34:08.851 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=41 | alerts=0 | stocks_computed=0 stocks_skipped=779 | bridge_ticks=0 connected=False
+2026-10-07 14:34:38.854 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=42 | alerts=0 | stocks_computed=0 stocks_skipped=798 | bridge_ticks=0 connected=False
+2026-10-07 14:35:08.858 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=42 | alerts=0 | stocks_computed=0 stocks_skipped=798 | bridge_ticks=0 connected=False
+2026-10-07 14:35:38.871 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=43 | alerts=0 | stocks_computed=0 stocks_skipped=817 | bridge_ticks=0 connected=False
+2026-10-07 14:36:08.885 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=43 | alerts=0 | stocks_computed=0 stocks_skipped=817 | bridge_ticks=0 connected=False
+2026-10-07 14:36:38.893 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=44 | alerts=0 | stocks_computed=0 stocks_skipped=836 | bridge_ticks=0 connected=False
+2026-10-07 14:37:08.897 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=44 | alerts=0 | stocks_computed=0 stocks_skipped=836 | bridge_ticks=0 connected=False
+2026-10-07 14:37:38.905 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=45 | alerts=0 | stocks_computed=0 stocks_skipped=855 | bridge_ticks=0 connected=False
+2026-10-07 14:38:08.914 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=45 | alerts=0 | stocks_computed=0 stocks_skipped=855 | bridge_ticks=0 connected=False
+2026-10-07 14:38:38.924 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=46 | alerts=0 | stocks_computed=0 stocks_skipped=874 | bridge_ticks=0 connected=False
+2026-10-07 14:39:08.928 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=46 | alerts=0 | stocks_computed=0 stocks_skipped=874 | bridge_ticks=0 connected=False
+2026-10-07 14:39:38.934 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=47 | alerts=0 | stocks_computed=0 stocks_skipped=893 | bridge_ticks=0 connected=False
+2026-10-07 14:40:08.955 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=47 | alerts=0 | stocks_computed=0 stocks_skipped=893 | bridge_ticks=0 connected=False
+2026-10-07 14:40:38.958 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=48 | alerts=0 | stocks_computed=0 stocks_skipped=912 | bridge_ticks=0 connected=False
+2026-10-07 14:41:08.964 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=48 | alerts=0 | stocks_computed=0 stocks_skipped=912 | bridge_ticks=0 connected=False
+2026-10-07 14:41:38.974 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=49 | alerts=0 | stocks_computed=0 stocks_skipped=931 | bridge_ticks=0 connected=False
+2026-10-07 14:42:08.977 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=49 | alerts=0 | stocks_computed=0 stocks_skipped=931 | bridge_ticks=0 connected=False
+2026-10-07 14:42:38.980 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=50 | alerts=0 | stocks_computed=0 stocks_skipped=950 | bridge_ticks=0 connected=False
+2026-10-07 14:43:08.984 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=50 | alerts=0 | stocks_computed=0 stocks_skipped=950 | bridge_ticks=0 connected=False
+2026-10-07 14:43:38.990 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=51 | alerts=0 | stocks_computed=0 stocks_skipped=969 | bridge_ticks=0 connected=False
+2026-10-07 14:44:08.999 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=51 | alerts=0 | stocks_computed=0 stocks_skipped=969 | bridge_ticks=0 connected=False
+2026-10-07 14:44:39.002 [algo-status ] algo_run       INFO  STATUS | phase=ACTIVE | cycles=52 | alerts=0 | stocks_computed=0 stocks_skipped=988 | bridge_ticks=0 connected=False
+2026-10-07 14:45:09.016 [algo-status ] algo_session   INFO  Session phase: ACTIVE → CLOSING
+2026-10-07 14:45:09.017 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=52 | alerts=0 | stocks_computed=0 stocks_skipped=988 | bridge_ticks=0 connected=False
+2026-10-07 14:45:39.026 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=53 | alerts=0 | stocks_computed=0 stocks_skipped=1007 | bridge_ticks=0 connected=False
+2026-10-07 14:46:09.035 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=53 | alerts=0 | stocks_computed=0 stocks_skipped=1007 | bridge_ticks=0 connected=False
+2026-10-07 14:46:39.046 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=54 | alerts=0 | stocks_computed=0 stocks_skipped=1026 | bridge_ticks=0 connected=False
+2026-10-07 14:47:09.055 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=54 | alerts=0 | stocks_computed=0 stocks_skipped=1026 | bridge_ticks=0 connected=False
+2026-10-07 14:47:39.058 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=55 | alerts=0 | stocks_computed=0 stocks_skipped=1045 | bridge_ticks=0 connected=False
+2026-10-07 14:48:09.059 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=55 | alerts=0 | stocks_computed=0 stocks_skipped=1045 | bridge_ticks=0 connected=False
+2026-10-07 14:48:39.062 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=56 | alerts=0 | stocks_computed=0 stocks_skipped=1064 | bridge_ticks=0 connected=False
+2026-10-07 14:49:09.066 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=56 | alerts=0 | stocks_computed=0 stocks_skipped=1064 | bridge_ticks=0 connected=False
+2026-10-07 14:49:39.082 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=57 | alerts=0 | stocks_computed=0 stocks_skipped=1083 | bridge_ticks=0 connected=False
+2026-10-07 14:50:09.087 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=57 | alerts=0 | stocks_computed=0 stocks_skipped=1083 | bridge_ticks=0 connected=False
+2026-10-07 14:50:39.095 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=58 | alerts=0 | stocks_computed=0 stocks_skipped=1102 | bridge_ticks=0 connected=False
+2026-10-07 14:51:09.104 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=58 | alerts=0 | stocks_computed=0 stocks_skipped=1102 | bridge_ticks=0 connected=False
+2026-10-07 14:51:39.106 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=59 | alerts=0 | stocks_computed=0 stocks_skipped=1121 | bridge_ticks=0 connected=False
+2026-10-07 14:52:09.115 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=59 | alerts=0 | stocks_computed=0 stocks_skipped=1121 | bridge_ticks=0 connected=False
+2026-10-07 14:52:39.124 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=60 | alerts=0 | stocks_computed=0 stocks_skipped=1140 | bridge_ticks=0 connected=False
+2026-10-07 14:53:09.132 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=60 | alerts=0 | stocks_computed=0 stocks_skipped=1140 | bridge_ticks=0 connected=False
+2026-10-07 14:53:39.141 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=61 | alerts=0 | stocks_computed=0 stocks_skipped=1159 | bridge_ticks=0 connected=False
+2026-10-07 14:54:09.148 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=61 | alerts=0 | stocks_computed=0 stocks_skipped=1159 | bridge_ticks=0 connected=False
+2026-10-07 14:54:39.156 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=62 | alerts=0 | stocks_computed=0 stocks_skipped=1178 | bridge_ticks=0 connected=False
+2026-10-07 14:55:09.166 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=62 | alerts=0 | stocks_computed=0 stocks_skipped=1178 | bridge_ticks=0 connected=False
+2026-10-07 14:55:39.176 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=63 | alerts=0 | stocks_computed=0 stocks_skipped=1197 | bridge_ticks=0 connected=False
+2026-10-07 14:56:09.196 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=63 | alerts=0 | stocks_computed=0 stocks_skipped=1197 | bridge_ticks=0 connected=False
+2026-10-07 14:56:39.206 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=64 | alerts=0 | stocks_computed=0 stocks_skipped=1216 | bridge_ticks=0 connected=False
+2026-10-07 14:57:09.217 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=64 | alerts=0 | stocks_computed=0 stocks_skipped=1216 | bridge_ticks=0 connected=False
+2026-10-07 14:57:39.218 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=65 | alerts=0 | stocks_computed=0 stocks_skipped=1235 | bridge_ticks=0 connected=False
+2026-10-07 14:58:09.221 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=65 | alerts=0 | stocks_computed=0 stocks_skipped=1235 | bridge_ticks=0 connected=False
+2026-10-07 14:58:39.223 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=66 | alerts=0 | stocks_computed=0 stocks_skipped=1254 | bridge_ticks=0 connected=False
+2026-10-07 14:59:09.225 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=66 | alerts=0 | stocks_computed=0 stocks_skipped=1254 | bridge_ticks=0 connected=False
+2026-10-07 14:59:39.236 [algo-status ] algo_run       INFO  STATUS | phase=CLOSING | cycles=67 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:00:09.243 [algo-status ] algo_session   INFO  Session phase: CLOSING → CLOSED
+2026-10-07 15:00:09.244 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=67 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:00:39.247 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=68 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:01:09.262 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=68 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:01:39.267 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=69 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:02:09.282 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=69 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:02:39.287 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=70 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:03:09.294 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=70 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:03:39.295 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=71 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:04:09.304 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=71 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:04:39.319 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=72 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:05:09.326 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=72 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:05:39.338 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=73 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:06:09.354 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=73 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:06:39.365 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=74 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:07:09.382 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=74 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:07:39.389 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=75 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:08:09.394 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=75 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:08:39.409 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=76 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:09:09.410 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=76 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:09:39.430 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=77 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:10:09.438 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=77 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:10:39.445 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=78 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:11:09.461 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=78 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:11:39.464 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=79 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:12:09.469 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=79 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:12:26.680 [health-api  ] algo_broadcaster INFO  Settings saved: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\data\settings.json
+2026-10-07 15:12:39.475 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=80 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:13:09.486 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=80 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False
+2026-10-07 15:13:39.490 [algo-status ] algo_run       INFO  STATUS | phase=CLOSED | cycles=81 | alerts=0 | stocks_computed=0 stocks_skipped=1273 | bridge_ticks=0 connected=False

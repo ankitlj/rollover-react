@@ -1,0 +1,29 @@
+[
+  {
+    "id": "LOG-1791366697807",
+    "alertId": "ws-RELIANCE",
+    "date": "2026-10-07",
+    "sym": "RELIANCE",
+    "sector": "Energy",
+    "lotSize": 500,
+    "price": 1414,
+    "expiry": "28 AUG 2025",
+    "lotsHeld": 0,
+    "lotsInstructed": 2,
+    "lotsFilled": 2,
+    "lotsPartiallyFilled": 0,
+    "lotsNotFilled": 0,
+    "pendingLots": 0,
+    "avgFillPrice": 1255,
+    "finalSpread": 1.8,
+    "dealerRemarks": "Corrected: actual fill at 1255",
+    "confirmStatus": "Confirmed",
+    "estimatedSpread": 1.86,
+    "estimatedSaving": 4340,
+    "confirmedSaving": 60.00000000000006,
+    "missedSaving": 0,
+    "lastUpdated": "2026-10-07T09:53:23.132Z",
+    "instructionTimestamp": "2026-10-07T09:51:37.807Z",
+    "finalised": true
+  }
+]

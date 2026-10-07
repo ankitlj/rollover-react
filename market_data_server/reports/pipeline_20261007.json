@@ -1,0 +1,50 @@
+{
+  "component": "pipeline_reporter",
+  "date": "2026-10-07",
+  "generated_at": "2026-10-07 02:39:01",
+  "pipeline_status": "degraded",
+  "issues": [
+    "Market data server: 1 errors",
+    "Algo engine: 1 errors",
+    "WS bridge: 3 send failures"
+  ],
+  "market_data_server": {
+    "status": "ok",
+    "path": "C:\\Users\\Ankit\\Desktop\\RS FOLDER\\rollover-react\\market_data_server\\logs\\server_20261007.log",
+    "line_count": 6,
+    "error_count": 1,
+    "warning_count": 1,
+    "last_5_errors": [
+      "2026-10-07 10:00:00 ERROR Connection timeout"
+    ]
+  },
+  "algo_engine_log": {
+    "status": "ok",
+    "path": "C:\\Users\\Ankit\\Desktop\\RS FOLDER\\rollover-react\\market_data_server\\logs\\algo_20261007.log",
+    "line_count": 5,
+    "error_count": 1,
+    "warning_count": 0,
+    "last_5_errors": [
+      "2026-10-07 10:30:00 ERROR Spread calculation failed for RELIANCE"
+    ]
+  },
+  "algo_engine_report": {
+    "status": "ok",
+    "cycles": 2500,
+    "alerts_fired": 15,
+    "stocks_computed": 45000,
+    "validator_rejected": 120
+  },
+  "ws_broadcaster": {
+    "status": "ok",
+    "unique_clients": 2,
+    "messages_sent": 5000,
+    "send_failures": 3,
+    "connection_events": 5
+  },
+  "frontend": {
+    "status": "check_browser_localstorage",
+    "key": "rs-connection-health",
+    "note": "Open browser DevTools > Application > Local Storage to view"
+  }
+}

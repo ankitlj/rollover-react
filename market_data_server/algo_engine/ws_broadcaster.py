@@ -16,6 +16,7 @@ log = logging.getLogger("algo_broadcaster")
 BROADCAST_PORT = 8766
 BROADCAST_HOST = "127.0.0.1"
 HEALTH_API_PORT = 8767
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 class WSBroadcaster:
@@ -43,6 +44,9 @@ class WSBroadcaster:
         self._stats_lock = threading.Lock()
 
         self._health_api_thread: Optional[threading.Thread] = None
+        self._cleanup_thread: Optional[threading.Thread] = None
+
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     def start(self):
         self._thread = threading.Thread(
@@ -55,10 +59,33 @@ class WSBroadcaster:
         )
         self._health_api_thread.start()
 
+        self._cleanup_thread = threading.Thread(
+            target=self._run_midnight_cleanup, daemon=True, name="midnight-cleanup"
+        )
+        self._cleanup_thread.start()
+
     def _run_health_api(self):
         from http.server import HTTPServer, BaseHTTPRequestHandler
 
         class HealthAPIHandler(BaseHTTPRequestHandler):
+            def do_GET(handler):
+                if handler.path == "/data/load":
+                    try:
+                        data = self._load_all_data()
+                        handler.send_response(HTTPStatus.OK)
+                        handler.send_header("Content-Type", "application/json")
+                        handler.send_header("Access-Control-Allow-Origin", "*")
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps(data, default=str).encode("utf-8"))
+                    except Exception as e:
+                        log.exception("Data load error")
+                        handler.send_response(HTTPStatus.INTERNAL_SERVER_ERROR)
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                else:
+                    handler.send_response(HTTPStatus.NOT_FOUND)
+                    handler.end_headers()
+
             def do_POST(handler):
                 if handler.path == "/health":
                     content_length = int(handler.headers.get("Content-Length", 0))
@@ -76,6 +103,42 @@ class WSBroadcaster:
                         handler.send_response(HTTPStatus.BAD_REQUEST)
                         handler.end_headers()
                         handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                elif handler.path == "/data/save":
+                    content_length = int(handler.headers.get("Content-Length", 0))
+                    body = handler.rfile.read(content_length)
+                    try:
+                        req_data = json.loads(body.decode("utf-8"))
+                        table = req_data.get("table")
+                        content = req_data.get("content")
+                        if not table or content is None:
+                            raise ValueError("Missing table or content")
+                        self._save_table_data(table, content)
+                        handler.send_response(HTTPStatus.OK)
+                        handler.send_header("Content-Type", "application/json")
+                        handler.send_header("Access-Control-Allow-Origin", "*")
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"status": "ok"}).encode("utf-8"))
+                    except Exception as e:
+                        log.exception("Data save error")
+                        handler.send_response(HTTPStatus.BAD_REQUEST)
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                elif handler.path == "/data/settings":
+                    content_length = int(handler.headers.get("Content-Length", 0))
+                    body = handler.rfile.read(content_length)
+                    try:
+                        req_data = json.loads(body.decode("utf-8"))
+                        self._save_settings_data(req_data)
+                        handler.send_response(HTTPStatus.OK)
+                        handler.send_header("Content-Type", "application/json")
+                        handler.send_header("Access-Control-Allow-Origin", "*")
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"status": "ok"}).encode("utf-8"))
+                    except Exception as e:
+                        log.exception("Settings save error")
+                        handler.send_response(HTTPStatus.BAD_REQUEST)
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
                 else:
                     handler.send_response(HTTPStatus.NOT_FOUND)
                     handler.end_headers()
@@ -83,7 +146,7 @@ class WSBroadcaster:
             def do_OPTIONS(handler):
                 handler.send_response(HTTPStatus.OK)
                 handler.send_header("Access-Control-Allow-Origin", "*")
-                handler.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+                handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
                 handler.send_header("Access-Control-Allow-Headers", "Content-Type")
                 handler.end_headers()
 
@@ -111,6 +174,76 @@ class WSBroadcaster:
             }, f, indent=2, default=str)
 
         log.info("Frontend health data saved: %s", json_path)
+
+    def _load_all_data(self) -> Dict:
+        date_tag = datetime.now(IST).strftime("%Y%m%d")
+        result = {}
+        tables = [
+            f"active_opportunities_{date_tag}",
+            f"expired_opportunities_{date_tag}",
+            f"daily_instruction_log_{date_tag}",
+            f"execution_details_{date_tag}",
+            f"correction_history_{date_tag}",
+            f"daily_metrics_{date_tag}",
+        ]
+        for table in tables:
+            path = DATA_DIR / f"{table}.json"
+            if path.exists():
+                with open(path, "r", encoding="utf-8") as f:
+                    result[table] = json.load(f)
+            else:
+                result[table] = []
+        settings_path = DATA_DIR / "settings.json"
+        if settings_path.exists():
+            with open(settings_path, "r", encoding="utf-8") as f:
+                result["settings"] = json.load(f)
+        else:
+            result["settings"] = {}
+        return result
+
+    def _save_table_data(self, table: str, content):
+        path = DATA_DIR / f"{table}.json"
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(content, f, indent=2, default=str)
+        log.debug("Table data saved: %s", path)
+
+    def _save_settings_data(self, data: Dict):
+        path = DATA_DIR / "settings.json"
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, default=str)
+        log.info("Settings saved: %s", path)
+
+    def _run_midnight_cleanup(self):
+        import time as _time
+        while not self._shutdown.is_set():
+            now = datetime.now(IST)
+            next_midnight = now.replace(hour=0, minute=0, second=5, microsecond=0)
+            if now >= next_midnight:
+                from datetime import timedelta
+                next_midnight += timedelta(days=1)
+            sleep_sec = (next_midnight - now).total_seconds()
+            if self._shutdown.wait(sleep_sec):
+                break
+            self._cleanup_daily_files()
+
+    def _cleanup_daily_files(self):
+        patterns = [
+            "active_opportunities_*.json",
+            "expired_opportunities_*.json",
+            "daily_instruction_log_*.json",
+            "execution_details_*.json",
+            "correction_history_*.json",
+            "daily_metrics_*.json",
+        ]
+        deleted = 0
+        for pattern in patterns:
+            for path in DATA_DIR.glob(pattern):
+                try:
+                    path.unlink()
+                    deleted += 1
+                except Exception:
+                    log.exception("Failed to delete %s", path)
+        log.info("Midnight cleanup: deleted %d daily JSON files", deleted)
 
     def _run_loop(self):
         self._loop = asyncio.new_event_loop()

@@ -1,0 +1,51 @@
+PIPELINE DAILY REPORT
+======================================================================
+
+Date: 2026-10-07
+Generated: 2026-10-07 02:39:01
+Pipeline Status: DEGRADED
+
+ISSUES DETECTED
+----------------------------------------------------------------------
+  • Market data server: 1 errors
+  • Algo engine: 1 errors
+  • WS bridge: 3 send failures
+
+COMPONENT STATUS
+----------------------------------------------------------------------
+
+1. MARKET DATA SERVER
+   Log File: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\logs\server_20261007.log
+   Status: ok
+   Lines: 6
+   Errors: 1
+   Warnings: 1
+   Last 5 Errors:
+     2026-10-07 10:00:00 ERROR Connection timeout
+
+2. ALGO ENGINE
+   Log File: C:\Users\Ankit\Desktop\RS FOLDER\rollover-react\market_data_server\logs\algo_20261007.log
+   Log Status: ok
+   Lines: 5
+   Errors: 1
+   Warnings: 0
+   Report Status: ok
+   Cycles: 2500
+   Alerts Fired: 15
+   Stocks Computed: 45000
+   Validator Rejected: 120
+
+3. WS BROADCASTER
+   Report Status: ok
+   Unique Clients: 2
+   Messages Sent: 5000
+   Send Failures: 3
+   Connection Events: 5
+
+4. FRONTEND
+   Status: check_browser_localstorage
+   LocalStorage Key: rs-connection-health
+   Note: Open browser DevTools > Application > Local Storage to view
+
+======================================================================
+END OF REPORT

@@ -28,6 +28,9 @@ interface StoreActions {
   login: (user: string, pass: string) => boolean;
   logout: () => void;
   completeTransition: () => void;
+  loadDataFromBackend: () => Promise<void>;
+  saveToBackend: (table: string, content: any) => Promise<void>;
+  saveSettingsToBackend: (settingsData: any) => Promise<void>;
   sendInstruction: (alertId: string, lots: number) => void;
   saveEod: (entryId: string, data: { filled: number; partial: number; notFilled: number; fillPrice: number; finalSpread: number; remarks: string }) => void;
   saveCorrection: (entryId: string, data: { field: string; newVal: string; reason: string }) => void;
@@ -101,6 +104,71 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return false;
   }, []);
 
+  const loadDataFromBackend = useCallback(async () => {
+    try {
+      const resp = await fetch('http://127.0.0.1:8767/data/load');
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      
+      const activeKey = `active_opportunities_${dateTag}`;
+      const logKey = `daily_instruction_log_${dateTag}`;
+      const corrKey = `correction_history_${dateTag}`;
+      
+      if (data[activeKey] && Array.isArray(data[activeKey])) {
+        setAlerts(prev => {
+          const loaded = data[activeKey] as Alert[];
+          const existingIds = new Set(prev.map(a => a.id));
+          const newAlerts = loaded.filter(a => !existingIds.has(a.id));
+          return [...prev, ...newAlerts];
+        });
+      }
+      
+      if (data[logKey] && Array.isArray(data[logKey])) {
+        setLogEntries(data[logKey]);
+      }
+      
+      if (data[corrKey] && Array.isArray(data[corrKey])) {
+        setCorrections(data[corrKey]);
+      }
+      
+      if (data.settings && typeof data.settings === 'object') {
+        if (data.settings.settings) {
+          setSettings(data.settings.settings);
+        }
+        if (data.settings.stockOverrides) {
+          setStockOverrides(data.settings.stockOverrides);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load data from backend:', err);
+    }
+  }, []);
+
+  const saveToBackend = useCallback(async (table: string, content: any) => {
+    try {
+      await fetch('http://127.0.0.1:8767/data/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table, content })
+      });
+    } catch (err) {
+      console.warn(`Failed to save ${table} to backend:`, err);
+    }
+  }, []);
+
+  const saveSettingsToBackend = useCallback(async (settingsData: any) => {
+    try {
+      await fetch('http://127.0.0.1:8767/data/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsData)
+      });
+    } catch (err) {
+      console.warn('Failed to save settings to backend:', err);
+    }
+  }, []);
+
   const logout = useCallback(() => {
     setIsLoggedIn(false);
     setCurrentUser('');
@@ -147,7 +215,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const estSaving = (a.initial - a.current) * lots * (stock?.lot || 1);
     const today = new Date().toISOString().split('T')[0];
 
-    setLogEntries(prev => [...prev, {
+    const newEntry = {
       id: 'LOG-' + Date.now(),
       alertId: a.id,
       date: today,
@@ -173,40 +241,53 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       lastUpdated: new Date(),
       instructionTimestamp: new Date().toISOString(),
       finalised: false
-    }]);
+    };
+
+    setLogEntries(prev => {
+      const updated = [...prev, newEntry];
+      const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      saveToBackend(`daily_instruction_log_${dateTag}`, updated);
+      return updated;
+    });
 
     setAlerts(prev => prev.map(x => x.id === alertId ? { ...x, status: 'Instruction Sent', executed: true } : x));
-  }, [alerts, resolvedStocks]);
+  }, [alerts, resolvedStocks, saveToBackend]);
 
   const saveEod = useCallback((entryId: string, data: { filled: number; partial: number; notFilled: number; fillPrice: number; finalSpread: number; remarks: string }) => {
-    setLogEntries(prev => prev.map(e => {
-      if (e.id !== entryId) return e;
-      const stock = resolvedStocks.find(s => s.sym === e.sym);
-      const confirmedSaving = Math.max(0, data.filled * ((e.estimatedSpread || 0) - data.finalSpread) * (stock?.lot || 1));
-      const confirmStatus = data.filled === e.lotsInstructed ? 'Confirmed' : (data.filled > 0 || data.partial > 0) ? 'Partially Confirmed' : 'Not Filled';
+    setLogEntries(prev => {
+      const updated = prev.map(e => {
+        if (e.id !== entryId) return e;
+        const stock = resolvedStocks.find(s => s.sym === e.sym);
+        const confirmedSaving = Math.max(0, data.filled * ((e.estimatedSpread || 0) - data.finalSpread) * (stock?.lot || 1));
+        const confirmStatus = data.filled === e.lotsInstructed ? 'Confirmed' : (data.filled > 0 || data.partial > 0) ? 'Partially Confirmed' : 'Not Filled';
 
-      setAlerts(prevA => prevA.map(a => {
-        if (a.id !== e.alertId) return a;
-        const newStatus = data.filled === e.lotsInstructed ? 'Fully Filled' : (data.filled > 0 || data.partial > 0) ? 'Partially Filled' : 'Not Filled';
-        return { ...a, status: newStatus };
-      }));
+        setAlerts(prevA => prevA.map(a => {
+          if (a.id !== e.alertId) return a;
+          const newStatus = data.filled === e.lotsInstructed ? 'Fully Filled' : (data.filled > 0 || data.partial > 0) ? 'Partially Filled' : 'Not Filled';
+          return { ...a, status: newStatus };
+        }));
 
-      return {
-        ...e,
-        lotsFilled: data.filled,
-        lotsPartiallyFilled: data.partial,
-        lotsNotFilled: data.notFilled,
-        pendingLots: data.partial,
-        avgFillPrice: data.fillPrice,
-        finalSpread: data.finalSpread,
-        dealerRemarks: data.remarks,
-        confirmedSaving,
-        missedSaving: data.notFilled * ((e.estimatedSpread || 0) - data.finalSpread) * (stock?.lot || 1),
-        confirmStatus,
-        lastUpdated: new Date()
-      };
-    }));
-  }, [resolvedStocks]);
+        return {
+          ...e,
+          lotsFilled: data.filled,
+          lotsPartiallyFilled: data.partial,
+          lotsNotFilled: data.notFilled,
+          pendingLots: data.partial,
+          avgFillPrice: data.fillPrice,
+          finalSpread: data.finalSpread,
+          dealerRemarks: data.remarks,
+          confirmedSaving,
+          missedSaving: data.notFilled * ((e.estimatedSpread || 0) - data.finalSpread) * (stock?.lot || 1),
+          confirmStatus,
+          lastUpdated: new Date()
+        };
+      });
+      const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const finalised = updated.filter(e => e.finalised);
+      saveToBackend(`execution_details_${dateTag}`, finalised);
+      return updated;
+    });
+  }, [resolvedStocks, saveToBackend]);
 
   const saveCorrection = useCallback((entryId: string, data: { field: string; newVal: string; reason: string }) => {
     setLogEntries(prev => prev.map(e => {
@@ -218,17 +299,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         parsed = (field === 'avgFillPrice' || field === 'finalSpread') ? parseFloat(data.newVal) : parseInt(data.newVal);
       }
 
-      setCorrections(prevC => [...prevC, {
-        id: 'CORR-' + Date.now(),
-        date: e.date,
-        entryId: e.id,
-        stock: e.sym,
-        field: data.field,
-        oldValue: oldVal,
-        newValue: parsed,
-        reason: data.reason,
-        timestamp: new Date().toISOString()
-      }]);
+      setCorrections(prevC => {
+        const updatedCorrections = [...prevC, {
+          id: 'CORR-' + Date.now(),
+          date: e.date,
+          entryId: e.id,
+          stock: e.sym,
+          field: data.field,
+          oldValue: oldVal,
+          newValue: parsed,
+          reason: data.reason,
+          timestamp: new Date().toISOString()
+        }];
+        const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        saveToBackend(`correction_history_${dateTag}`, updatedCorrections);
+        return updatedCorrections;
+      });
 
       const updated = { ...e, [field]: parsed, lastUpdated: new Date() };
 
@@ -239,7 +325,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       return updated;
     }));
-  }, [resolvedStocks]);
+  }, [resolvedStocks, saveToBackend]);
 
   const addCorrectionBatch = useCallback((newCorrections: Correction[]) => {
     setCorrections(prev => [...prev, ...newCorrections]);
@@ -253,10 +339,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [logEntries]);
 
   const finaliseEntry = useCallback((entryId: string) => {
-    setLogEntries(prev => prev.map(e =>
-      e.id === entryId ? { ...e, finalised: true, lastUpdated: new Date() } : e
-    ));
-  }, []);
+    setLogEntries(prev => {
+      const updated = prev.map(e =>
+        e.id === entryId ? { ...e, finalised: true, lastUpdated: new Date() } : e
+      );
+      const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const finalised = updated.filter(e => e.finalised);
+      saveToBackend(`execution_details_${dateTag}`, finalised);
+      return updated;
+    });
+  }, [saveToBackend]);
 
   const updateDealerRemarks = useCallback((entryId: string, remarks: string) => {
     setLogEntries(prev => prev.map(e =>
@@ -309,7 +401,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     alerts, logEntries, corrections, finalisedDays, settings, stockOverrides, resolvedStocks,
     currentPage, currentTheme, currentUser, toasts, notifications,
     isLoggedIn, showTransition, apiStatus, marketOpen, currentMonth, nextMonth,
-    setCurrentPage, toggleTheme, login, logout, completeTransition,
+    setCurrentPage, toggleTheme, login, logout, completeTransition, loadDataFromBackend,
+    saveToBackend, saveSettingsToBackend,
     sendInstruction, saveEod, saveCorrection, addCorrectionBatch, finaliseDay,
     finaliseEntry, updateDealerRemarks, setStatus, updateLogField,
     updateSettings, resetSettings, updateStock,

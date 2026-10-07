@@ -1,0 +1,32 @@
+WS BROADCASTER DAILY REPORT
+============================================================
+
+Start Time: 2026-10-07 02:35:54
+End Time: 2026-10-07 02:35:54
+Uptime: 0.0 seconds (0.00 hours)
+
+Total Connection Events: 3
+Unique Clients: 2
+Total Messages Sent: 2100
+Total Send Failures: 3
+
+CONNECTION EVENTS
+------------------------------------------------------------
+[2026-10-07 09:15:30] CONNECT - 127.0.0.1:50000
+[2026-10-07 15:30:45] DISCONNECT - 127.0.0.1:50000 (duration: 22515.0s)
+[2026-10-07 10:00:00] CONNECT - 127.0.0.1:50001
+
+CLIENT STATISTICS
+------------------------------------------------------------
+
+Client: 127.0.0.1:50000
+  Connected: 2026-10-07 09:15:30
+  Disconnected: 2026-10-07 15:30:45
+  Duration: 22515.0s
+  Messages Sent: 1250
+
+Client: 127.0.0.1:50001
+  Connected: 2026-10-07 10:00:00
+  Disconnected: Still connected
+  Duration: 0s
+  Messages Sent: 850

@@ -1,0 +1,6 @@
+2026-10-07 09:00:00 INFO Starting market data server
+2026-10-07 09:00:01 INFO Connected to Arrow API
+2026-10-07 09:15:30 WARNING Slow tick reception
+2026-10-07 10:00:00 ERROR Connection timeout
+2026-10-07 10:00:05 INFO Reconnected
+2026-10-07 15:30:00 INFO Shutting down

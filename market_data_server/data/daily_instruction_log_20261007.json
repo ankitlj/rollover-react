@@ -1,0 +1,29 @@
+[
+  {
+    "id": "LOG-1791366756771",
+    "alertId": "ws-TCS",
+    "date": "2026-10-07",
+    "sym": "TCS",
+    "sector": "IT",
+    "lotSize": 175,
+    "price": 3472,
+    "expiry": "28 AUG 2025",
+    "lotsHeld": 0,
+    "lotsInstructed": 10,
+    "lotsFilled": 0,
+    "lotsPartiallyFilled": 0,
+    "lotsNotFilled": 0,
+    "pendingLots": 10,
+    "avgFillPrice": 0,
+    "finalSpread": 0,
+    "dealerRemarks": "",
+    "confirmStatus": "Awaiting EOD Update",
+    "estimatedSpread": 3.03,
+    "estimatedSaving": 12372.5,
+    "confirmedSaving": 0,
+    "missedSaving": 0,
+    "lastUpdated": "2026-10-07T09:52:36.771Z",
+    "instructionTimestamp": "2026-10-07T09:52:36.771Z",
+    "finalised": false
+  }
+]

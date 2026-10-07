@@ -1,0 +1,43 @@
+{
+  "component": "frontend",
+  "received_at": "2026-10-07 02:43:58",
+  "data": {
+    "events": [
+      {
+        "event": "connected",
+        "timestamp": "2026-10-07T09:15:30.000Z"
+      },
+      {
+        "event": "message_received",
+        "timestamp": "2026-10-07T09:15:31.000Z",
+        "details": {
+          "type": "init"
+        }
+      },
+      {
+        "event": "message_received",
+        "timestamp": "2026-10-07T09:15:35.000Z",
+        "details": {
+          "type": "snapshot"
+        }
+      },
+      {
+        "event": "disconnected",
+        "timestamp": "2026-10-07T10:30:00.000Z"
+      },
+      {
+        "event": "reconnecting",
+        "timestamp": "2026-10-07T10:30:02.000Z",
+        "details": {
+          "attempt": 1,
+          "delay_ms": 2000
+        }
+      },
+      {
+        "event": "connected",
+        "timestamp": "2026-10-07T10:30:04.000Z"
+      }
+    ],
+    "synced_at": "2026-10-07T15:30:00.000Z"
+  }
+}

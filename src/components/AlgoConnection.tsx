@@ -67,13 +67,14 @@ function getNextMonthStr(): string {
 }
 
 export default function AlgoConnection() {
-  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast } = useStore();
+  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend } = useStore();
   const prevAlertsRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
     setCurrentMonth(getCurrentMonthStr());
     setNextMonth(getNextMonthStr());
-  }, [setCurrentMonth, setNextMonth]);
+    loadDataFromBackend();
+  }, [setCurrentMonth, setNextMonth, loadDataFromBackend]);
 
   const onInit = useCallback((stocks: WsStockData[], status: WsStatus) => {
     const expiryDays = calcExpiryDays();
@@ -110,7 +111,7 @@ export default function AlgoConnection() {
   const onSnapshot = useCallback((stocks: WsStockData[], _timestamp: string) => {
     const expired = isExpired();
     setAlerts(prev => {
-      return prev.map(a => {
+      const updated = prev.map(a => {
         if (a.status === 'Expired' || a.status === 'Cancelled') return a;
         const match = stocks.find(s => resolveSym(s.stock) === a.sym);
         if (!match || match.current_spread === null) return a;
@@ -124,6 +125,14 @@ export default function AlgoConnection() {
           status: newStatus,
         };
       });
+      if (expired) {
+        const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        const active = updated.filter(a => a.status !== 'Expired' && a.status !== 'Cancelled');
+        const expiredList = updated.filter(a => a.status === 'Expired' || a.status === 'Cancelled');
+        saveToBackend(`active_opportunities_${dateTag}`, active);
+        saveToBackend(`expired_opportunities_${dateTag}`, expiredList);
+      }
+      return updated;
     });
 
     const map = new Map<string, number>();
@@ -131,7 +140,7 @@ export default function AlgoConnection() {
       if (s.discount_pct !== null) map.set(resolveSym(s.stock), s.discount_pct);
     }
     prevAlertsRef.current = map;
-  }, [setAlerts]);
+  }, [setAlerts, saveToBackend]);
 
   const onAlert = useCallback((data: WsAlertData) => {
     const resolved = resolveSym(data.stock);
@@ -152,16 +161,24 @@ export default function AlgoConnection() {
 
   const onAlertExpired = useCallback((data: WsAlertExpiredData) => {
     const resolved = resolveSym(data.stock);
-    setAlerts(prev => prev.map(a => {
-      if (a.sym !== resolved) return a;
-      return {
-        ...a,
-        current: data.final_spread,
-        lastUpdated: parseTs(data.timestamp),
-        status: 'Expired',
-      };
-    }));
-  }, [setAlerts]);
+    setAlerts(prev => {
+      const updated = prev.map(a => {
+        if (a.sym !== resolved) return a;
+        return {
+          ...a,
+          current: data.final_spread,
+          lastUpdated: parseTs(data.timestamp),
+          status: 'Expired',
+        };
+      });
+      const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const active = updated.filter(a => a.status !== 'Expired' && a.status !== 'Cancelled');
+      const expired = updated.filter(a => a.status === 'Expired' || a.status === 'Cancelled');
+      saveToBackend(`active_opportunities_${dateTag}`, active);
+      saveToBackend(`expired_opportunities_${dateTag}`, expired);
+      return updated;
+    });
+  }, [setAlerts, saveToBackend]);
 
   const onStatus = useCallback((status: WsStatus) => {
     setMarketOpen(status.market_open);

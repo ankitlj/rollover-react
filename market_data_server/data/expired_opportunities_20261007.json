@@ -1,0 +1,16 @@
+[
+  {
+    "id": "ws-RELIANCE",
+    "sym": "RELIANCE",
+    "sector": "Energy",
+    "lot": 500,
+    "initial": 6.2,
+    "current": 5.8,
+    "discount": 70,
+    "lotsAvailable": 0,
+    "ageSec": 0,
+    "expiryDays": 22,
+    "lastUpdated": "2026-10-07T10:04:03.938Z",
+    "status": "Expired"
+  }
+]
