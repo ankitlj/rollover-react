@@ -5,6 +5,8 @@ const HEALTH_API_URL = 'https://rollover-react-production-a68d.up.railway.app/he
 const RECONNECT_BASE_MS = 2000;
 const RECONNECT_MAX_MS = 30000;
 const PING_INTERVAL_MS = 20000;
+const STALE_THRESHOLD_MS = 60000;
+const STALE_CHECK_INTERVAL_MS = 10000;
 const HEALTH_STORAGE_KEY = 'rs-connection-health';
 const MAX_HEALTH_EVENTS = 500;
 const HEALTH_SYNC_INTERVAL_MS = 300000;
@@ -119,6 +121,8 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
   const reconnectTimer = useRef<number>(0);
   const pingTimer = useRef<number>(0);
   const healthSyncTimer = useRef<number>(0);
+  const staleWatchTimer = useRef<number>(0);
+  const lastMessageTime = useRef<number>(Date.now());
   const handlersRef = useRef(handlers);
   const mountedRef = useRef(true);
 
@@ -137,6 +141,10 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
       clearInterval(healthSyncTimer.current);
       healthSyncTimer.current = 0;
     }
+    if (staleWatchTimer.current) {
+      clearInterval(staleWatchTimer.current);
+      staleWatchTimer.current = 0;
+    }
   }, []);
 
   const connect = useCallback(() => {
@@ -149,6 +157,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
       ws.onopen = () => {
         if (!mountedRef.current) { ws.close(); return; }
         reconnectAttempt.current = 0;
+        lastMessageTime.current = Date.now();
         handlersRef.current.onConnectionChange('connected');
         logHealthEvent('connected');
 
@@ -157,10 +166,19 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
             ws.send(JSON.stringify({ type: 'ping' }));
           }
         }, PING_INTERVAL_MS);
+
+        staleWatchTimer.current = window.setInterval(() => {
+          if (!mountedRef.current) return;
+          if (Date.now() - lastMessageTime.current > STALE_THRESHOLD_MS) {
+            logHealthEvent('stale_connection', { silent_ms: Date.now() - lastMessageTime.current });
+            ws.close();
+          }
+        }, STALE_CHECK_INTERVAL_MS);
       };
 
       ws.onmessage = (event) => {
         if (!mountedRef.current) return;
+        lastMessageTime.current = Date.now();
         try {
           const msg = JSON.parse(event.data);
           logHealthEvent('message_received', { type: msg.type });
@@ -199,6 +217,10 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
         if (pingTimer.current) {
           clearInterval(pingTimer.current);
           pingTimer.current = 0;
+        }
+        if (staleWatchTimer.current) {
+          clearInterval(staleWatchTimer.current);
+          staleWatchTimer.current = 0;
         }
         handlersRef.current.onConnectionChange('disconnected');
         logHealthEvent('disconnected');
