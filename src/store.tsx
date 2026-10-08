@@ -117,23 +117,48 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
       
       const activeKey = `active_opportunities_${dateTag}`;
+      const expiredKey = `expired_opportunities_${dateTag}`;
       const logKey = `daily_instruction_log_${dateTag}`;
       const corrKey = `correction_history_${dateTag}`;
-      
-      if (data[activeKey] && Array.isArray(data[activeKey])) {
-        setAlerts(prev => {
-          const loaded = (data[activeKey] as Alert[]).map(a => ({
-            ...a,
-            lastUpdated: new Date(a.lastUpdated as unknown as string),
-          }));
-          const existingIds = new Set(prev.map(a => a.id));
-          const newAlerts = loaded.filter(a => !existingIds.has(a.id));
-          return [...prev, ...newAlerts];
-        });
-      }
-      
+
+      let logRows: LogEntry[] = [];
       if (data[logKey] && Array.isArray(data[logKey])) {
-        setLogEntries(data[logKey]);
+        logRows = (data[logKey] as LogEntry[]).map(e => ({
+          ...e,
+          lastUpdated: new Date(e.lastUpdated as unknown as string),
+        }));
+        setLogEntries(logRows);
+      }
+      const instructedSyms = new Set(logRows.map(e => e.sym));
+
+      const restored: Alert[] = [];
+      for (const key of [activeKey, expiredKey]) {
+        if (data[key] && Array.isArray(data[key])) {
+          for (const a of data[key] as Alert[]) {
+            const gone = a.status === 'Expired' || a.status === 'Cancelled';
+            const instructed = !gone && instructedSyms.has(a.sym);
+            restored.push({
+              ...a,
+              status: gone ? a.status : instructed ? 'Instruction Sent' : (a.status === 'Instruction Sent' ? 'Available' : a.status),
+              executed: instructed ? true : a.executed,
+              lastUpdated: new Date(a.lastUpdated as unknown as string),
+            });
+          }
+        }
+      }
+      if (restored.length > 0) {
+        setAlerts(prev => {
+          const merged = [...prev];
+          for (const a of restored) {
+            const idx = merged.findIndex(x => x.id === a.id);
+            if (idx === -1) {
+              merged.push(a);
+            } else if (merged[idx].status !== 'Instruction Sent' && a.status === 'Instruction Sent') {
+              merged[idx] = { ...merged[idx], status: 'Instruction Sent', executed: true };
+            }
+          }
+          return merged;
+        });
       }
       
       if (data[corrKey] && Array.isArray(data[corrKey])) {

@@ -46,7 +46,12 @@ class WSBroadcaster:
         self._health_api_thread: Optional[threading.Thread] = None
         self._cleanup_thread: Optional[threading.Thread] = None
 
+        self._active_alerts: Dict[str, Dict] = {}
+        self._expired_alerts: Dict[str, Dict] = {}
+        self._alert_state_lock = threading.Lock()
+
         DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self._load_persisted_alerts()
 
     def start(self):
         self._thread = threading.Thread(
@@ -213,6 +218,41 @@ class WSBroadcaster:
             json.dump(data, f, indent=2, default=str)
         log.info("Settings saved: %s", path)
 
+    def _load_persisted_alerts(self):
+        date_tag = datetime.now(IST).strftime("%Y%m%d")
+        active_path = DATA_DIR / f"algo_active_alerts_{date_tag}.json"
+        expired_path = DATA_DIR / f"algo_expired_alerts_{date_tag}.json"
+        try:
+            if active_path.exists():
+                with open(active_path, "r", encoding="utf-8") as f:
+                    rows = json.load(f)
+                if isinstance(rows, list):
+                    self._active_alerts = {r.get("stock"): r for r in rows if isinstance(r, dict)}
+                    log.info("Restored %d active alerts from %s", len(self._active_alerts), active_path.name)
+        except Exception:
+            log.exception("Failed to load persisted active alerts")
+        try:
+            if expired_path.exists():
+                with open(expired_path, "r", encoding="utf-8") as f:
+                    rows = json.load(f)
+                if isinstance(rows, list):
+                    self._expired_alerts = {r.get("stock"): r for r in rows if isinstance(r, dict)}
+                    log.info("Restored %d expired alerts from %s", len(self._expired_alerts), expired_path.name)
+        except Exception:
+            log.exception("Failed to load persisted expired alerts")
+
+    def _persist_alerts(self):
+        try:
+            date_tag = datetime.now(IST).strftime("%Y%m%d")
+            active_path = DATA_DIR / f"algo_active_alerts_{date_tag}.json"
+            expired_path = DATA_DIR / f"algo_expired_alerts_{date_tag}.json"
+            with open(active_path, "w", encoding="utf-8") as f:
+                json.dump(list(self._active_alerts.values()), f, indent=2, default=str)
+            with open(expired_path, "w", encoding="utf-8") as f:
+                json.dump(list(self._expired_alerts.values()), f, indent=2, default=str)
+        except Exception:
+            log.exception("Failed to persist alert state")
+
     def _run_midnight_cleanup(self):
         import time as _time
         while not self._shutdown.is_set():
@@ -230,6 +270,8 @@ class WSBroadcaster:
         patterns = [
             "active_opportunities_*.json",
             "expired_opportunities_*.json",
+            "algo_active_alerts_*.json",
+            "algo_expired_alerts_*.json",
             "daily_instruction_log_*.json",
             "execution_details_*.json",
             "correction_history_*.json",
@@ -243,6 +285,9 @@ class WSBroadcaster:
                     deleted += 1
                 except Exception:
                     log.exception("Failed to delete %s", path)
+        with self._alert_state_lock:
+            self._active_alerts.clear()
+            self._expired_alerts.clear()
         log.info("Midnight cleanup: deleted %d daily JSON files", deleted)
 
     def _run_loop(self):
@@ -352,6 +397,8 @@ class WSBroadcaster:
 
         expiries = self._bridge.expiries or {}
         log.info("Init expiries: current=%s, next=%s", expiries.get("current"), expiries.get("next"))
+        with self._alert_state_lock:
+            active_alerts = list(self._active_alerts.values())
         msg = {
             "type": "init",
             "stocks": stocks,
@@ -364,6 +411,7 @@ class WSBroadcaster:
                 "current": expiries.get("current"),
                 "next": expiries.get("next"),
             },
+            "active_alerts": active_alerts,
         }
         return json.dumps(msg, default=str)
 
@@ -437,8 +485,7 @@ class WSBroadcaster:
     def broadcast_alert(self, alert):
         if self._loop is None:
             return
-        msg = json.dumps({
-            "type": "alert",
+        record = {
             "stock": alert.stock,
             "discount_pct": round(alert.discount_pct, 2),
             "threshold": alert.threshold,
@@ -448,12 +495,24 @@ class WSBroadcaster:
             "current_fut_ltp": alert.current_fut_ltp,
             "next_fut_ltp": alert.next_fut_ltp,
             "timestamp": alert.timestamp,
-        }, default=str)
+        }
+        with self._alert_state_lock:
+            self._active_alerts[alert.stock] = record
+            self._persist_alerts()
+        msg = json.dumps({"type": "alert", **record}, default=str)
         asyncio.run_coroutine_threadsafe(self._send_to_all(msg), self._loop)
 
     def broadcast_alert_expired(self, stock: str, final_spread: float, timestamp: str):
         if self._loop is None:
             return
+        with self._alert_state_lock:
+            record = self._active_alerts.pop(stock, None)
+            if record is None:
+                record = {"stock": stock, "timestamp": timestamp}
+            record["final_spread"] = final_spread
+            record["expired_at"] = timestamp
+            self._expired_alerts[stock] = record
+            self._persist_alerts()
         msg = json.dumps({
             "type": "alert_expired",
             "stock": stock,

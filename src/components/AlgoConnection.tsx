@@ -76,16 +76,57 @@ export default function AlgoConnection() {
     loadDataFromBackend();
   }, [setCurrentMonth, setNextMonth, loadDataFromBackend]);
 
-  const onInit = useCallback((stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null) => {
+  const onInit = useCallback((stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null, activeAlerts: WsAlertData[]) => {
     if (expiries?.current) setExpiries(expiries.current, expiries.next ?? '');
     setMarketOpen(status.market_open);
+
+    if (activeAlerts.length > 0) {
+      setAlerts(prev => {
+        const updated = prev.map(a => ({ ...a }));
+        for (const data of activeAlerts) {
+          const resolved = resolveSym(data.stock);
+          const idx = updated.findIndex(x => x.sym === resolved);
+          if (idx >= 0) {
+            const a = updated[idx];
+            if (a.status === 'Expired' || a.status === 'Cancelled') continue;
+            updated[idx] = {
+              ...a,
+              current: data.spread,
+              discount: data.discount_pct,
+              lastUpdated: parseTs(data.timestamp),
+              ageSec: 0,
+              status: a.status === 'Instruction Sent' ? a.status : 'Available',
+            };
+          } else {
+            const info = findStockInfo(data.stock);
+            updated.push({
+              id: `ws-${resolved}`,
+              sym: resolved,
+              sector: info.sector,
+              lot: info.lot,
+              price: info.price,
+              initial: data.initial_spread,
+              current: data.spread,
+              spreadAtSignal: data.spread,
+              discount: data.discount_pct,
+              lotsAvailable: info.lotsHeld ?? 0,
+              ageSec: 0,
+              expiryDays: calcExpiryDays(),
+              lastUpdated: parseTs(data.timestamp),
+              status: 'Available',
+            });
+          }
+        }
+        return updated;
+      });
+    }
 
     const map = new Map<string, number>();
     for (const s of stocks) {
       if (s.discount_pct !== null) map.set(resolveSym(s.stock), s.discount_pct);
     }
     prevAlertsRef.current = map;
-  }, [setExpiries, setMarketOpen]);
+  }, [setExpiries, setMarketOpen, setAlerts]);
 
   const onSnapshot = useCallback((stocks: WsStockData[], _timestamp: string) => {
     const expired = isExpired();

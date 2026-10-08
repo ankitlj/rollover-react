@@ -11,7 +11,7 @@ export default function ExecModal({ alertId, onClose }: Props) {
   const { alerts, resolvedStocks, sendInstruction, addToast, addNotification, expiryCur, expiryNext } = useStore();
   const a = alerts.find(x => x.id === alertId);
   const stock = a ? resolvedStocks.find(s => s.sym === a.sym) : null;
-  const [lots, setLots] = useState(a?.lotsAvailable ?? 0);
+  const [lots, setLots] = useState(0);
   const [lotsError, setLotsError] = useState(false);
 
   const estSaving = a && stock ? ((a.spreadAtSignal || 0) - a.current) * lots * stock.lot : 0;
@@ -71,7 +71,7 @@ export default function ExecModal({ alertId, onClose }: Props) {
               <input
                 type="number"
                 min={1}
-                value={lots}
+                value={lots || ''}
                 onChange={e => handleLotsChange(e.target.value)}
                 className={lotsError ? 'error' : ''}
               />
