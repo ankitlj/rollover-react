@@ -399,6 +399,7 @@ class WSBroadcaster:
         log.info("Init expiries: current=%s, next=%s", expiries.get("current"), expiries.get("next"))
         with self._alert_state_lock:
             active_alerts = list(self._active_alerts.values())
+            expired_alerts = list(self._expired_alerts.values())
         msg = {
             "type": "init",
             "stocks": stocks,
@@ -412,6 +413,7 @@ class WSBroadcaster:
                 "next": expiries.get("next"),
             },
             "active_alerts": active_alerts,
+            "expired_alerts": expired_alerts,
         }
         return json.dumps(msg, default=str)
 

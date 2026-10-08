@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { useAlgoWS, type WsStockData, type WsStatus, type WsAlertData, type WsAlertExpiredData, type WsExpiries } from '../hooks/useAlgoWS';
+import { useAlgoWS, type WsStockData, type WsStatus, type WsAlertData, type WsAlertExpiredData, type WsExpiredAlertData, type WsExpiries } from '../hooks/useAlgoWS';
 import { useStore } from '../store';
 import { STOCKS } from '../data';
 
@@ -76,7 +76,7 @@ export default function AlgoConnection() {
     loadDataFromBackend();
   }, [setCurrentMonth, setNextMonth, loadDataFromBackend]);
 
-  const onInit = useCallback((stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null, activeAlerts: WsAlertData[]) => {
+  const onInit = useCallback((stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null, activeAlerts: WsAlertData[], expiredAlerts: WsExpiredAlertData[]) => {
     if (expiries?.current) setExpiries(expiries.current, expiries.next ?? '');
     setMarketOpen(status.market_open);
 
@@ -114,6 +114,46 @@ export default function AlgoConnection() {
               expiryDays: calcExpiryDays(),
               lastUpdated: parseTs(data.timestamp),
               status: 'Available',
+            });
+          }
+        }
+        return updated;
+      });
+    }
+
+    if (expiredAlerts.length > 0) {
+      setAlerts(prev => {
+        const updated = prev.map(a => ({ ...a }));
+        for (const data of expiredAlerts) {
+          const resolved = resolveSym(data.stock);
+          const idx = updated.findIndex(x => x.sym === resolved);
+          const current = data.final_spread ?? data.spread ?? 0;
+          const ts = data.expired_at ?? data.timestamp ?? null;
+          if (idx >= 0) {
+            const a = updated[idx];
+            if (a.status === 'Expired' || a.status === 'Cancelled') continue;
+            updated[idx] = {
+              ...a,
+              current,
+              lastUpdated: parseTs(ts),
+              status: 'Expired',
+            };
+          } else {
+            const info = findStockInfo(data.stock);
+            updated.push({
+              id: `ws-${resolved}`,
+              sym: resolved,
+              sector: info.sector,
+              lot: info.lot,
+              price: info.price,
+              initial: data.initial_spread ?? 0,
+              current,
+              discount: data.discount_pct ?? 0,
+              lotsAvailable: info.lotsHeld ?? 0,
+              ageSec: 0,
+              expiryDays: calcExpiryDays(),
+              lastUpdated: parseTs(ts),
+              status: 'Expired',
             });
           }
         }

@@ -89,13 +89,23 @@ export interface WsAlertExpiredData {
   timestamp: string;
 }
 
+export interface WsExpiredAlertData {
+  stock: string;
+  final_spread?: number;
+  spread?: number;
+  timestamp?: string;
+  expired_at?: string;
+  initial_spread?: number;
+  discount_pct?: number;
+}
+
 export interface WsExpiries {
   current: string | null;
   next: string | null;
 }
 
 interface UseAlgoWSHandlers {
-  onInit: (stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null, activeAlerts: WsAlertData[]) => void;
+  onInit: (stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null, activeAlerts: WsAlertData[], expiredAlerts: WsExpiredAlertData[]) => void;
   onSnapshot: (stocks: WsStockData[], timestamp: string) => void;
   onAlert: (data: WsAlertData) => void;
   onAlertExpired: (data: WsAlertExpiredData) => void;
@@ -161,6 +171,7 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
                 msg.status,
                 msg.expiries ?? null,
                 Array.isArray(msg.active_alerts) ? msg.active_alerts : [],
+                Array.isArray(msg.expired_alerts) ? msg.expired_alerts : [],
               );
               break;
             case 'snapshot':
