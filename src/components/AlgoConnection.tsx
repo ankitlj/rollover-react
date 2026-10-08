@@ -67,7 +67,7 @@ function getNextMonthStr(): string {
 }
 
 export default function AlgoConnection() {
-  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend, setExpiries } = useStore();
+  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend, setExpiries, takePendingActiveAlerts } = useStore();
   const prevAlertsRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
@@ -80,15 +80,33 @@ export default function AlgoConnection() {
     if (expiries?.current) setExpiries(expiries.current, expiries.next ?? '');
     setMarketOpen(status.market_open);
 
-    if (activeAlerts.length > 0) {
-      setAlerts(prev => {
-        const updated = prev.map(a => ({ ...a }));
-        for (const data of activeAlerts) {
-          const resolved = resolveSym(data.stock);
-          const idx = updated.findIndex(x => x.sym === resolved);
-          if (idx >= 0) {
-            const a = updated[idx];
-            if (a.status === 'Expired' || a.status === 'Cancelled') continue;
+    const pendingStatus = new Map<string, string>();
+    for (const p of takePendingActiveAlerts()) {
+      pendingStatus.set(p.sym, p.status);
+    }
+    const activeSet = new Set(activeAlerts.map(d => resolveSym(d.stock)));
+
+    setAlerts(prev => {
+      const updated = prev.map(a => ({ ...a }));
+
+      for (const data of activeAlerts) {
+        const resolved = resolveSym(data.stock);
+        const idx = updated.findIndex(x => x.sym === resolved);
+        if (idx >= 0) {
+          const a = updated[idx];
+          if (a.status === 'Cancelled') continue;
+          if (a.status === 'Expired') {
+            updated[idx] = {
+              ...a,
+              initial: data.initial_spread,
+              spreadAtSignal: data.spread,
+              current: data.spread,
+              discount: data.discount_pct,
+              lastUpdated: parseTs(data.timestamp),
+              ageSec: 0,
+              status: pendingStatus.get(resolved) === 'Instruction Sent' ? 'Instruction Sent' : 'Available',
+            };
+          } else {
             updated[idx] = {
               ...a,
               current: data.spread,
@@ -97,76 +115,80 @@ export default function AlgoConnection() {
               ageSec: 0,
               status: a.status === 'Instruction Sent' ? a.status : 'Available',
             };
-          } else {
-            const info = findStockInfo(data.stock);
-            updated.push({
-              id: `ws-${resolved}`,
-              sym: resolved,
-              sector: info.sector,
-              lot: info.lot,
-              price: info.price,
-              initial: data.initial_spread,
-              current: data.spread,
-              spreadAtSignal: data.spread,
-              discount: data.discount_pct,
-              lotsAvailable: info.lotsHeld ?? 0,
-              ageSec: 0,
-              expiryDays: calcExpiryDays(),
-              lastUpdated: parseTs(data.timestamp),
-              status: 'Available',
-            });
           }
+        } else {
+          const info = findStockInfo(data.stock);
+          updated.push({
+            id: `ws-${resolved}`,
+            sym: resolved,
+            sector: info.sector,
+            lot: info.lot,
+            price: info.price,
+            initial: data.initial_spread,
+            current: data.spread,
+            spreadAtSignal: data.spread,
+            discount: data.discount_pct,
+            lotsAvailable: info.lotsHeld ?? 0,
+            ageSec: 0,
+            expiryDays: calcExpiryDays(),
+            lastUpdated: parseTs(data.timestamp),
+            status: pendingStatus.get(resolved) === 'Instruction Sent' ? 'Instruction Sent' : 'Available',
+          });
         }
-        return updated;
-      });
-    }
+      }
 
-    if (expiredAlerts.length > 0) {
-      setAlerts(prev => {
-        const updated = prev.map(a => ({ ...a }));
-        for (const data of expiredAlerts) {
-          const resolved = resolveSym(data.stock);
-          const idx = updated.findIndex(x => x.sym === resolved);
-          const current = data.final_spread ?? data.spread ?? 0;
-          const ts = data.expired_at ?? data.timestamp ?? null;
-          if (idx >= 0) {
-            const a = updated[idx];
-            if (a.status === 'Expired' || a.status === 'Cancelled') continue;
-            updated[idx] = {
-              ...a,
-              current,
-              lastUpdated: parseTs(ts),
-              status: 'Expired',
-            };
-          } else {
-            const info = findStockInfo(data.stock);
-            updated.push({
-              id: `ws-${resolved}`,
-              sym: resolved,
-              sector: info.sector,
-              lot: info.lot,
-              price: info.price,
-              initial: data.initial_spread ?? 0,
-              current,
-              discount: data.discount_pct ?? 0,
-              lotsAvailable: info.lotsHeld ?? 0,
-              ageSec: 0,
-              expiryDays: calcExpiryDays(),
-              lastUpdated: parseTs(ts),
-              status: 'Expired',
-            });
-          }
+      for (const data of expiredAlerts) {
+        const resolved = resolveSym(data.stock);
+        if (activeSet.has(resolved)) continue;
+        const idx = updated.findIndex(x => x.sym === resolved);
+        const current = data.final_spread ?? data.spread ?? 0;
+        const ts = data.expired_at ?? data.timestamp ?? null;
+        if (idx >= 0) {
+          const a = updated[idx];
+          if (a.status === 'Expired' || a.status === 'Cancelled') continue;
+          updated[idx] = {
+            ...a,
+            current,
+            lastUpdated: parseTs(ts),
+            status: 'Expired',
+          };
+        } else {
+          const info = findStockInfo(data.stock);
+          updated.push({
+            id: `ws-${resolved}`,
+            sym: resolved,
+            sector: info.sector,
+            lot: info.lot,
+            price: info.price,
+            initial: data.initial_spread ?? 0,
+            current,
+            discount: data.discount_pct ?? 0,
+            lotsAvailable: info.lotsHeld ?? 0,
+            ageSec: 0,
+            expiryDays: calcExpiryDays(),
+            lastUpdated: parseTs(ts),
+            status: 'Expired',
+          });
         }
-        return updated;
-      });
-    }
+      }
+
+      // Purge: write the server-confirmed lists back so rows saved while the
+      // tab was disconnected stop reappearing on every reload.
+      const dateTag = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const active = updated.filter(a => a.status !== 'Expired' && a.status !== 'Cancelled');
+      const expiredList = updated.filter(a => a.status === 'Expired' || a.status === 'Cancelled');
+      saveToBackend(`active_opportunities_${dateTag}`, active);
+      saveToBackend(`expired_opportunities_${dateTag}`, expiredList);
+
+      return updated;
+    });
 
     const map = new Map<string, number>();
     for (const s of stocks) {
       if (s.discount_pct !== null) map.set(resolveSym(s.stock), s.discount_pct);
     }
     prevAlertsRef.current = map;
-  }, [setExpiries, setMarketOpen, setAlerts]);
+  }, [setExpiries, setMarketOpen, setAlerts, saveToBackend, takePendingActiveAlerts]);
 
   const onSnapshot = useCallback((stocks: WsStockData[], _timestamp: string) => {
     const expired = isExpired();

@@ -51,6 +51,7 @@ interface StoreActions {
   removeNotification: (id: string) => void;
   updateAlerts: (updater: (alerts: Alert[]) => void) => void;
   setAlerts: (alerts: Alert[] | ((prev: Alert[]) => Alert[])) => void;
+  takePendingActiveAlerts: () => Alert[];
   setApiStatus: (status: 'connected' | 'reconnecting' | 'disconnected') => void;
   setMarketOpen: (open: boolean) => void;
   setCurrentMonth: (month: string) => void;
@@ -91,6 +92,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [expiryNext, setExpiryNext] = useState('');
   const toastIdRef = useRef(0);
   const notifIdRef = useRef(0);
+  const pendingActiveRef = useRef<Alert[]>([]);
 
   const resolvedStocks: Stock[] = STOCKS.map(s => {
     const ovr = stockOverrides[s.sym];
@@ -131,32 +133,43 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       const instructedSyms = new Set(logRows.map(e => e.sym));
 
-      const restored: Alert[] = [];
+      const restoredExpired: Alert[] = [];
+      const restoredActive: Alert[] = [];
       for (const key of [activeKey, expiredKey]) {
         if (data[key] && Array.isArray(data[key])) {
           for (const a of data[key] as Alert[]) {
             const gone = a.status === 'Expired' || a.status === 'Cancelled';
             const instructed = !gone && instructedSyms.has(a.sym);
-            restored.push({
+            const restored: Alert = {
               ...a,
               status: gone ? a.status : instructed ? 'Instruction Sent' : (a.status === 'Instruction Sent' ? 'Available' : a.status),
               executed: instructed ? true : a.executed,
               lastUpdated: new Date(a.lastUpdated as unknown as string),
-            });
+            };
+            if (restored.status === 'Expired' || restored.status === 'Cancelled') restoredExpired.push(restored);
+            else restoredActive.push(restored);
           }
         }
       }
-      if (restored.length > 0) {
+      if (restoredExpired.length > 0 || restoredActive.length > 0) {
         setAlerts(prev => {
           const merged = [...prev];
-          for (const a of restored) {
+          for (const a of restoredExpired) {
             const idx = merged.findIndex(x => x.id === a.id);
-            if (idx === -1) {
-              merged.push(a);
-            } else if (merged[idx].status !== 'Instruction Sent' && a.status === 'Instruction Sent') {
+            if (idx === -1) merged.push(a);
+          }
+          // Saved active rows are held back until the server's WS init confirms
+          // them — rows that expired while the tab was disconnected must not
+          // flash in the active table on reload.
+          const leftover: Alert[] = [];
+          for (const a of restoredActive) {
+            const idx = merged.findIndex(x => x.id === a.id);
+            if (idx === -1) leftover.push(a);
+            else if (merged[idx].status !== 'Instruction Sent' && a.status === 'Instruction Sent') {
               merged[idx] = { ...merged[idx], status: 'Instruction Sent', executed: true };
             }
           }
+          pendingActiveRef.current = leftover;
           return merged;
         });
       }
@@ -435,6 +448,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setExpiryNext(next);
   }, []);
 
+  const takePendingActiveAlerts = useCallback(() => {
+    const rows = pendingActiveRef.current;
+    pendingActiveRef.current = [];
+    return rows;
+  }, []);
+
   const value = {
     alerts, logEntries, corrections, finalisedDays, settings, stockOverrides, resolvedStocks,
     currentPage, currentTheme, currentUser, toasts, notifications,
@@ -445,7 +464,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     finaliseEntry, updateDealerRemarks, setStatus, updateLogField,
     updateSettings, resetSettings, updateStock, setExpiries,
     addToast, removeToast, addNotification, removeNotification,
-    updateAlerts, setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth
+    updateAlerts, setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, takePendingActiveAlerts
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
