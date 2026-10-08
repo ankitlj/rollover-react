@@ -183,15 +183,34 @@ export function useAlgoWS(handlers: UseAlgoWSHandlers) {
           const msg = JSON.parse(event.data);
           logHealthEvent('message_received', { type: msg.type });
           switch (msg.type) {
-            case 'init':
+            case 'init': {
+              const freshActives: WsAlertData[] = [];
+              const staleActives: WsAlertData[] = [];
+              const now = Date.now();
+              (Array.isArray(msg.active_alerts) ? msg.active_alerts : []).forEach((a: WsAlertData) => {
+                const age = a.timestamp ? (now - new Date(a.timestamp).getTime()) / 1000 : 0;
+                if (age > 90) {
+                  staleActives.push(a);
+                } else {
+                  freshActives.push(a);
+                }
+              });
               handlersRef.current.onInit(
                 msg.stocks,
                 msg.status,
                 msg.expiries ?? null,
-                Array.isArray(msg.active_alerts) ? msg.active_alerts : [],
+                freshActives,
                 Array.isArray(msg.expired_alerts) ? msg.expired_alerts : [],
               );
+              staleActives.forEach((a) => {
+                handlersRef.current.onAlertExpired({
+                  stock: a.stock,
+                  final_spread: a.spread,
+                  timestamp: a.timestamp,
+                });
+              });
               break;
+            }
             case 'snapshot':
               handlersRef.current.onSnapshot(msg.stocks, msg.timestamp);
               break;

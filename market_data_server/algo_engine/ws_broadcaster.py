@@ -300,7 +300,7 @@ class WSBroadcaster:
                 self._handle_client,
                 BROADCAST_HOST,
                 BROADCAST_PORT,
-                ping_interval=20,
+                ping_interval=10,
                 ping_timeout=10,
             )
             log.info("Algo WS broadcaster listening on ws://%s:%d", BROADCAST_HOST, BROADCAST_PORT)
@@ -398,7 +398,19 @@ class WSBroadcaster:
         expiries = self._bridge.expiries or {}
         log.info("Init expiries: current=%s, next=%s", expiries.get("current"), expiries.get("next"))
         with self._alert_state_lock:
-            active_alerts = list(self._active_alerts.values())
+            now = datetime.now(IST)
+            active_alerts = []
+            for a in self._active_alerts.values():
+                entry = dict(a)
+                if "timestamp" in entry and entry["timestamp"]:
+                    try:
+                        ts = datetime.fromisoformat(entry["timestamp"])
+                        entry["alert_age_seconds"] = round((now - ts).total_seconds(), 1)
+                    except Exception:
+                        entry["alert_age_seconds"] = 0
+                else:
+                    entry["alert_age_seconds"] = 0
+                active_alerts.append(entry)
             expired_alerts = list(self._expired_alerts.values())
         msg = {
             "type": "init",
