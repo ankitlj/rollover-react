@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from 'react';
 import type { Alert, LogEntry, Correction, Settings, Stock, Toast, Notification, PageId } from './types';
 import { createInitialLogEntries, DEFAULT_SETTINGS, STOCKS } from './data';
+
+const SESSION_API_URL = 'https://rollover-react-production-a68d.up.railway.app/session/log';
 
 interface StoreState {
   alerts: Alert[];
@@ -106,6 +108,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setIsLoggedIn(true);
       setShowTransition(true);
       sessionStorage.setItem('rs-session', JSON.stringify({ user, loggedInAt: new Date().toISOString() }));
+      fetch(SESSION_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user, event: 'login' }),
+      }).catch(() => {});
       return true;
     }
     return false;
@@ -216,6 +223,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    const session = sessionStorage.getItem('rs-session');
+    let userId = '';
+    if (session) {
+      try { userId = JSON.parse(session).user || ''; } catch {}
+    }
+    if (userId) {
+      fetch(SESSION_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, event: 'logout' }),
+        keepalive: true,
+      }).catch(() => {});
+    }
     setIsLoggedIn(false);
     setCurrentUser('');
     setAlerts([]);
@@ -453,6 +473,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     pendingActiveRef.current = [];
     return rows;
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!isLoggedIn || !currentUser) return;
+      fetch(SESSION_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser, event: 'logout' }),
+        keepalive: true,
+      }).catch(() => {});
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isLoggedIn, currentUser]);
 
   const value = {
     alerts, logEntries, corrections, finalisedDays, settings, stockOverrides, resolvedStocks,

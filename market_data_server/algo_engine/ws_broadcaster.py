@@ -87,6 +87,19 @@ class WSBroadcaster:
                         handler.send_response(HTTPStatus.INTERNAL_SERVER_ERROR)
                         handler.end_headers()
                         handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                elif handler.path == "/session/log":
+                    try:
+                        data = self._load_session_log()
+                        handler.send_response(HTTPStatus.OK)
+                        handler.send_header("Content-Type", "application/json")
+                        handler.send_header("Access-Control-Allow-Origin", "*")
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps(data, default=str).encode("utf-8"))
+                    except Exception as e:
+                        log.exception("Session log load error")
+                        handler.send_response(HTTPStatus.INTERNAL_SERVER_ERROR)
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
                 else:
                     handler.send_response(HTTPStatus.NOT_FOUND)
                     handler.end_headers()
@@ -141,6 +154,26 @@ class WSBroadcaster:
                         handler.wfile.write(json.dumps({"status": "ok"}).encode("utf-8"))
                     except Exception as e:
                         log.exception("Settings save error")
+                        handler.send_response(HTTPStatus.BAD_REQUEST)
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                elif handler.path == "/session/log":
+                    content_length = int(handler.headers.get("Content-Length", 0))
+                    body = handler.rfile.read(content_length)
+                    try:
+                        req_data = json.loads(body.decode("utf-8"))
+                        user_id = req_data.get("user_id")
+                        event = req_data.get("event")
+                        if not user_id or event not in ("login", "logout"):
+                            raise ValueError("Missing user_id or invalid event")
+                        self._log_session_event(user_id, event)
+                        handler.send_response(HTTPStatus.OK)
+                        handler.send_header("Content-Type", "application/json")
+                        handler.send_header("Access-Control-Allow-Origin", "*")
+                        handler.end_headers()
+                        handler.wfile.write(json.dumps({"status": "ok"}).encode("utf-8"))
+                    except Exception as e:
+                        log.exception("Session log error")
                         handler.send_response(HTTPStatus.BAD_REQUEST)
                         handler.end_headers()
                         handler.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
@@ -217,6 +250,48 @@ class WSBroadcaster:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, default=str)
         log.info("Settings saved: %s", path)
+
+    def _log_session_event(self, user_id: str, event: str):
+        date_tag = datetime.now(IST).strftime("%Y%m%d")
+        path = DATA_DIR / f"session_log_{date_tag}.json"
+        sessions = []
+        if path.exists():
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    sessions = json.load(f)
+            except Exception:
+                sessions = []
+
+        now_str = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
+
+        if event == "login":
+            sessions.append({
+                "user_id": user_id,
+                "login_at": now_str,
+                "logout_at": None,
+                "duration_sec": None,
+            })
+            log.info("Session login: %s at %s", user_id, now_str)
+        elif event == "logout":
+            for s in reversed(sessions):
+                if s.get("user_id") == user_id and s.get("logout_at") is None:
+                    s["logout_at"] = now_str
+                    login_ts = datetime.strptime(s["login_at"], "%Y-%m-%d %H:%M:%S")
+                    logout_ts = datetime.strptime(now_str, "%Y-%m-%d %H:%M:%S")
+                    s["duration_sec"] = round((logout_ts - login_ts).total_seconds(), 1)
+                    log.info("Session logout: %s | duration: %.1fs", user_id, s["duration_sec"])
+                    break
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(sessions, f, indent=2, default=str)
+
+    def _load_session_log(self) -> list:
+        date_tag = datetime.now(IST).strftime("%Y%m%d")
+        path = DATA_DIR / f"session_log_{date_tag}.json"
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        return []
 
     def _load_persisted_alerts(self):
         date_tag = datetime.now(IST).strftime("%Y%m%d")
