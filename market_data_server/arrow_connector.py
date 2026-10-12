@@ -126,6 +126,8 @@ class ArrowConnector:
         self._401_count = 0
 
         self._waiting_since_mono = 0.0
+        self._disconnected_since_mono = 0.0
+        self._last_login_mono = 0.0
         self._watchdog_thread: Optional[threading.Thread] = None
         self._watchdog_start()
 
@@ -155,6 +157,10 @@ class ArrowConnector:
                 self._waiting_since_mono = time.monotonic()
             elif old == FeedState.WAITING_FOR_FRESH_BOOKS:
                 self._waiting_since_mono = 0.0
+            if new_state == FeedState.DISCONNECTED:
+                self._disconnected_since_mono = time.monotonic()
+            elif old == FeedState.DISCONNECTED:
+                self._disconnected_since_mono = 0.0
             if old != new_state:
                 log.info(f"Feed state: {old.value} -> {new_state.value}  ({reason})")
                 for listener in self._state_listeners:
@@ -192,6 +198,7 @@ class ArrowConnector:
                 totp_secret=config.TOTP_SECRET,
             )
             log.info(f"Login OK: {result.get('name', '?')} (token expires at {result.get('userID','')})")
+            self._last_login_mono = time.monotonic()
             return True
         except Exception as e:
             log.error(f"Login FAILED: {e}")
@@ -576,6 +583,7 @@ class ArrowConnector:
             token = self.client.get_token()
             if not token:
                 raise RuntimeError("Arrow returned an empty token during recovery.")
+            self._last_login_mono = time.monotonic()
 
             log.info(f"Recovery #{count}: login OK, reconnecting streams...")
             self._attempt_stream_reconnect(token)
@@ -673,6 +681,23 @@ class ArrowConnector:
                     now - last_tick,
                 )
                 threading.Thread(target=self.full_recovery, daemon=True).start()
+
+        elif state == FeedState.DISCONNECTED:
+            disc_since = self._disconnected_since_mono
+            if disc_since > 0 and (now - disc_since) > 30:
+                log.warning(
+                    "Watchdog: DISCONNECTED for %.0fs — "
+                    "triggering full_recovery",
+                    now - disc_since,
+                )
+                threading.Thread(target=self.full_recovery, daemon=True).start()
+
+        if self._last_login_mono > 0 and (now - self._last_login_mono) > 72000:
+            log.info(
+                "Watchdog: token age %.1fh — proactive refresh before expiry",
+                (now - self._last_login_mono) / 3600,
+            )
+            threading.Thread(target=self.full_recovery, daemon=True).start()
 
     # ─── SHUTDOWN ────────────────────────────────────────
 
