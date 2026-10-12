@@ -19,7 +19,7 @@ export default function PasswordModal({ onUnlock, onClose }: Props) {
       return;
     }
 
-    const PASSWORDS: Record<string, string> = { 'ankit@36': 'ankit@321', 'user@1': 'user@123' };
+    const PASSWORDS: Record<string, string> = { 'ankit@36': 'ankit@321', 'user@1': 'user@123', 'user@11': 'user@123' };
     const expectedPass = PASSWORDS[currentUser] || '';
 
     if (pass === expectedPass) {

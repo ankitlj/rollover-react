@@ -102,7 +102,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   });
 
   const login = useCallback((user: string, pass: string) => {
-    const valid = (user === 'ankit@36' && pass === 'ankit@321') || (user === 'user@1' && pass === 'user@123');
+    const valid = (user === 'ankit@36' && pass === 'ankit@321') || (user === 'user@1' && pass === 'user@123') || (user === 'user@11' && pass === 'user@123');
     if (valid) {
       setCurrentUser(user);
       setIsLoggedIn(true);
