@@ -303,6 +303,18 @@ class WSBroadcaster:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(sessions, f, indent=2, default=str)
 
+        # Dual-write to DB (new — safe, if DB fails JSON still works)
+        try:
+            duration = None
+            if event == "logout":
+                for s in reversed(sessions):
+                    if s.get("user_id") == user_id and s.get("logout_at") is not None:
+                        duration = s.get("duration_sec")
+                        break
+            self._db.log_session_event(user_id, event, now_str, duration)
+        except Exception as e:
+            log.error(f"DB session log failed: {e}")
+
     def _load_session_log(self) -> list:
         date_tag = datetime.now(IST).strftime("%Y%m%d")
         path = DATA_DIR / f"session_log_{date_tag}.json"

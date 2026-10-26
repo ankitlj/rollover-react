@@ -4,6 +4,7 @@ Dual-write alongside JSON files — if DB fails, JSON still works.
 """
 
 import os
+import re
 import logging
 import threading
 from datetime import datetime
@@ -226,22 +227,37 @@ class DatabaseLayer:
 
         try:
             with self._lock:
-                self._save_to_db(table, content)
-                self._rows_written_today += 1
+                if self._save_to_db(table, content):
+                    self._rows_written_today += 1
         except Exception as e:
             self._write_errors += 1
             log.error(f"DB write failed for {table}: {e}")
 
-    def _save_to_db(self, table: str, content: Any):
-        """Internal: write to PostgreSQL."""
+    def _save_to_db(self, table: str, content: Any) -> bool:
+        """Internal: write to PostgreSQL. Frontend sends date-suffixed names (e.g. active_opportunities_20261026)."""
         if not isinstance(content, list) or not content:
-            return
+            return False
 
-        date_tag = datetime.now(IST).strftime("%Y%m%d")
+        base_table = table
         today = datetime.now(IST).date()
+        m = re.fullmatch(r"(.+)_(\d{8})", table)
+        if m:
+            base_table = m.group(1)
+            try:
+                today = datetime.strptime(m.group(2), "%Y%m%d").date()
+            except ValueError:
+                pass
+
+        known_tables = {
+            "active_opportunities", "expired_opportunities",
+            "daily_instruction_log", "execution_details", "correction_history",
+        }
+        if base_table not in known_tables:
+            log.debug(f"DB save skipped: unknown table {table}")
+            return False
 
         with self._conn.cursor() as cur:
-            if table == "active_opportunities":
+            if base_table == "active_opportunities":
                 execute_values(
                     cur,
                     """
@@ -269,7 +285,7 @@ class DatabaseLayer:
                         for row in content
                     ],
                 )
-            elif table == "expired_opportunities":
+            elif base_table == "expired_opportunities":
                 execute_values(
                     cur,
                     """
@@ -294,7 +310,7 @@ class DatabaseLayer:
                         for row in content
                     ],
                 )
-            elif table == "daily_instruction_log":
+            elif base_table == "daily_instruction_log":
                 execute_values(
                     cur,
                     """
@@ -336,7 +352,7 @@ class DatabaseLayer:
                         for row in content
                     ],
                 )
-            elif table == "execution_details":
+            elif base_table == "execution_details":
                 execute_values(
                     cur,
                     """
@@ -378,7 +394,7 @@ class DatabaseLayer:
                         for row in content
                     ],
                 )
-            elif table == "correction_history":
+            elif base_table == "correction_history":
                 execute_values(
                     cur,
                     """
@@ -397,21 +413,41 @@ class DatabaseLayer:
                         for row in content
                     ],
                 )
-            elif table == "session_log":
-                execute_values(
-                    cur,
-                    """
-                    INSERT INTO session_log (user_id, login_at, logout_at, duration_sec)
-                    VALUES %s
-                    """,
-                    [
-                        (
-                            row.get("user_id"), row.get("login_at"),
-                            row.get("logout_at"), row.get("duration_sec")
+        return True
+
+    def log_session_event(self, user_id: str, event: str, now_str: str, duration_sec=None):
+        """Mirror a session event into DB. login=INSERT, logout=closes the open row (no duplicates)."""
+        if not self._db_available:
+            return
+        self._reconnect_if_needed()
+        if not self._db_available:
+            return
+        try:
+            with self._lock:
+                with self._conn.cursor() as cur:
+                    if event == "login":
+                        cur.execute(
+                            "INSERT INTO session_log (user_id, login_at) VALUES (%s, %s)",
+                            (user_id, now_str),
                         )
-                        for row in content
-                    ],
-                )
+                    else:
+                        cur.execute(
+                            """
+                            UPDATE session_log
+                            SET logout_at = %s, duration_sec = %s
+                            WHERE id = (
+                                SELECT id FROM session_log
+                                WHERE user_id = %s AND logout_at IS NULL
+                                ORDER BY login_at DESC
+                                LIMIT 1
+                            )
+                            """,
+                            (now_str, duration_sec, user_id),
+                        )
+            self._rows_written_today += 1
+        except Exception as e:
+            self._write_errors += 1
+            log.error(f"DB session log failed for {user_id}: {e}")
 
     def log_db_health(self):
         """Log DB health status every 15 minutes. Call from main loop."""
