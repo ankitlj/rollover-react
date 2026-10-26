@@ -10,6 +10,7 @@ from typing import Optional, Set, Dict, List
 from datetime import datetime
 
 from .config import IST, INITIAL_SPREADS, STOCK_CONFIG, SAMPLE_INTERVAL_SECONDS
+from .db_layer import DatabaseLayer
 
 log = logging.getLogger("algo_broadcaster")
 
@@ -50,6 +51,9 @@ class WSBroadcaster:
         self._expired_alerts: Dict[str, Dict] = {}
         self._alert_state_lock = threading.Lock()
 
+        # Initialize database layer (safe — if DB unavailable, runs in JSON-only mode)
+        self._db = DatabaseLayer()
+
         DATA_DIR.mkdir(parents=True, exist_ok=True)
         self._load_persisted_alerts()
 
@@ -68,6 +72,13 @@ class WSBroadcaster:
             target=self._run_midnight_cleanup, daemon=True, name="midnight-cleanup"
         )
         self._cleanup_thread.start()
+
+        # Start DB health check thread (logs every 15 min)
+        if self._db.is_available:
+            self._db_health_thread = threading.Thread(
+                target=self._run_db_health_check, daemon=True, name="db-health"
+            )
+            self._db_health_thread.start()
 
     def _run_health_api(self):
         from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -240,10 +251,17 @@ class WSBroadcaster:
         return result
 
     def _save_table_data(self, table: str, content):
+        # Write to JSON file (existing flow — never break this)
         path = DATA_DIR / f"{table}.json"
         with open(path, "w", encoding="utf-8") as f:
             json.dump(content, f, indent=2, default=str)
         log.debug("Table data saved: %s", path)
+
+        # Dual-write to PostgreSQL (new — safe, if DB fails JSON still works)
+        try:
+            self._db.save_table_data(table, content)
+        except Exception as e:
+            log.error(f"DB dual-write failed for {table}: {e}")
 
     def _save_settings_data(self, data: Dict):
         path = DATA_DIR / "settings.json"
@@ -340,6 +358,13 @@ class WSBroadcaster:
             if self._shutdown.wait(sleep_sec):
                 break
             self._cleanup_daily_files()
+
+    def _run_db_health_check(self):
+        """Log DB health every 15 minutes."""
+        while not self._shutdown.is_set():
+            self._db.log_db_health()
+            if self._shutdown.wait(900):  # 15 minutes
+                break
 
     def _cleanup_daily_files(self):
         patterns = [
