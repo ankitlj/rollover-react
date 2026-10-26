@@ -53,17 +53,16 @@ function isExpired(): boolean {
   return ist.getTime() > expiry.getTime();
 }
 
-function getCurrentMonthStr(): string {
-  const ist = getIstNow();
-  return MONTH_NAMES[ist.getUTCMonth()] + ' ' + ist.getUTCFullYear();
-}
-
-function getNextMonthStr(): string {
-  const ist = getIstNow();
-  let m = ist.getUTCMonth() + 1;
-  let y = ist.getUTCFullYear();
-  if (m > 11) { m = 0; y++; }
-  return MONTH_NAMES[m] + ' ' + y;
+function parseMonthFromExpiry(expiryStr: string): string {
+  if (!expiryStr) return '';
+  // Format: "23-Nov-2026" or "27-Oct-2026"
+  const parts = expiryStr.split('-');
+  if (parts.length === 3) {
+    const month = parts[1]; // "Nov" or "Oct"
+    const year = parts[2];  // "2026"
+    return `${month} ${year}`;
+  }
+  return '';
 }
 
 export default function AlgoConnection() {
@@ -90,13 +89,15 @@ export default function AlgoConnection() {
   }, [muted]);
 
   useEffect(() => {
-    setCurrentMonth(getCurrentMonthStr());
-    setNextMonth(getNextMonthStr());
     loadDataFromBackend();
-  }, [setCurrentMonth, setNextMonth, loadDataFromBackend]);
+  }, [loadDataFromBackend]);
 
   const onInit = useCallback((stocks: WsStockData[], status: WsStatus, expiries: WsExpiries | null, activeAlerts: WsAlertData[], expiredAlerts: WsExpiredAlertData[]) => {
-    if (expiries?.current) setExpiries(expiries.current, expiries.next ?? '');
+    if (expiries?.current) {
+      setExpiries(expiries.current, expiries.next ?? '');
+      setCurrentMonth(parseMonthFromExpiry(expiries.current));
+      setNextMonth(parseMonthFromExpiry(expiries.next ?? ''));
+    }
     setMarketOpen(status.market_open);
 
     const pendingStatus = new Map<string, string>();
@@ -207,7 +208,7 @@ export default function AlgoConnection() {
       if (s.discount_pct !== null) map.set(resolveSym(s.stock), s.discount_pct);
     }
     prevAlertsRef.current = map;
-  }, [setExpiries, setMarketOpen, setAlerts, saveToBackend, takePendingActiveAlerts]);
+  }, [setExpiries, setMarketOpen, setAlerts, saveToBackend, takePendingActiveAlerts, setCurrentMonth, setNextMonth]);
 
   const onSnapshot = useCallback((stocks: WsStockData[], _timestamp: string) => {
     const expired = isExpired();
