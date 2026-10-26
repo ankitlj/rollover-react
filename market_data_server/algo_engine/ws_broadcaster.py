@@ -625,6 +625,17 @@ class WSBroadcaster:
         with self._alert_state_lock:
             self._active_alerts[alert.stock] = record
             self._persist_alerts()
+        # Dual-write to DB (new — safe, if DB fails JSON still works)
+        try:
+            self._db.log_alert_event(
+                "FIRED", alert.stock, alert.timestamp,
+                discount=record["discount_pct"], spread=record["spread"],
+                initial_spread=alert.initial_spread, trigger_count=alert.trigger_count,
+                current_fut_ltp=alert.current_fut_ltp, next_fut_ltp=alert.next_fut_ltp,
+            )
+            self._db.upsert_alert_active(record)
+        except Exception as e:
+            log.error(f"DB alert fire write failed: {e}")
         msg = json.dumps({"type": "alert", **record}, default=str)
         asyncio.run_coroutine_threadsafe(self._send_to_all(msg), self._loop)
 
@@ -639,6 +650,17 @@ class WSBroadcaster:
             record["expired_at"] = timestamp
             self._expired_alerts[stock] = record
             self._persist_alerts()
+        # Dual-write to DB (new — safe, if DB fails JSON still works)
+        try:
+            self._db.log_alert_event(
+                "EXPIRED", stock, timestamp,
+                initial_spread=record.get("initial_spread"),
+                final_spread=final_spread,
+                trigger_count=record.get("trigger_count"),
+            )
+            self._db.move_alert_to_expired(stock, final_spread, timestamp, record)
+        except Exception as e:
+            log.error(f"DB alert expire write failed: {e}")
         msg = json.dumps({
             "type": "alert_expired",
             "stock": stock,

@@ -185,6 +185,23 @@ class DatabaseLayer:
                 created_at TIMESTAMP DEFAULT NOW()
             )
             """,
+            """
+            CREATE TABLE IF NOT EXISTS alert_events (
+                id SERIAL PRIMARY KEY,
+                date DATE NOT NULL,
+                event TEXT NOT NULL,
+                sym TEXT NOT NULL,
+                discount FLOAT,
+                spread FLOAT,
+                initial_spread FLOAT,
+                final_spread FLOAT,
+                trigger_count INTEGER,
+                current_fut_ltp FLOAT,
+                next_fut_ltp FLOAT,
+                event_timestamp TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+            """,
         ]
 
         try:
@@ -266,6 +283,7 @@ class DatabaseLayer:
                      lots_available, age_sec, expiry_days, last_updated, status, spread_at_signal, executed)
                     VALUES %s
                     ON CONFLICT (id) DO UPDATE SET
+                        date = EXCLUDED.date,
                         current_spread = EXCLUDED.current_spread,
                         discount = EXCLUDED.discount,
                         lots_available = EXCLUDED.lots_available,
@@ -294,6 +312,7 @@ class DatabaseLayer:
                      discount, lots_available, age_sec, expiry_days, last_updated, expired_at, status)
                     VALUES %s
                     ON CONFLICT (id) DO UPDATE SET
+                        date = EXCLUDED.date,
                         final_spread = EXCLUDED.final_spread,
                         expired_at = EXCLUDED.expired_at,
                         status = EXCLUDED.status
@@ -448,6 +467,102 @@ class DatabaseLayer:
         except Exception as e:
             self._write_errors += 1
             log.error(f"DB session log failed for {user_id}: {e}")
+
+    def log_alert_event(self, event_type: str, sym: str, ts: str, discount=None,
+                        spread=None, initial_spread=None, final_spread=None,
+                        trigger_count=None, current_fut_ltp=None, next_fut_ltp=None):
+        """Append one FIRED/EXPIRED event to alert_events (append-only, never cleaned)."""
+        if not self._db_available:
+            return
+        self._reconnect_if_needed()
+        if not self._db_available:
+            return
+        try:
+            today = datetime.now(IST).date()
+            with self._lock:
+                with self._conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        INSERT INTO alert_events
+                        (date, event, sym, discount, spread, initial_spread, final_spread,
+                         trigger_count, current_fut_ltp, next_fut_ltp, event_timestamp)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (today, event_type, sym, discount, spread, initial_spread,
+                         final_spread, trigger_count, current_fut_ltp, next_fut_ltp, ts),
+                    )
+            self._rows_written_today += 1
+        except Exception as e:
+            self._write_errors += 1
+            log.error(f"DB alert event failed for {sym}: {e}")
+
+    def upsert_alert_active(self, record: dict):
+        """Upsert into active_opportunities the moment an alert fires (server-side — no browser needed).
+        id uses the frontend's ws-<SYM> convention so later frontend saves enrich the same row."""
+        if not self._db_available:
+            return
+        self._reconnect_if_needed()
+        if not self._db_available:
+            return
+        try:
+            today = datetime.now(IST).date()
+            sym = record.get("stock")
+            with self._lock:
+                with self._conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        INSERT INTO active_opportunities
+                        (id, date, sym, initial_spread, current_spread, discount,
+                         age_sec, last_updated, status)
+                        VALUES (%s, %s, %s, %s, %s, %s, 0, %s, 'Available')
+                        ON CONFLICT (id) DO UPDATE SET
+                            date = EXCLUDED.date,
+                            current_spread = EXCLUDED.current_spread,
+                            discount = EXCLUDED.discount,
+                            last_updated = EXCLUDED.last_updated,
+                            status = 'Available'
+                        """,
+                        (f"ws-{sym}", today, sym, record.get("initial_spread"),
+                         record.get("spread"), record.get("discount_pct"),
+                         record.get("timestamp")),
+                    )
+            self._rows_written_today += 1
+        except Exception as e:
+            self._write_errors += 1
+            log.error(f"DB active alert upsert failed for {record.get('stock')}: {e}")
+
+    def move_alert_to_expired(self, sym: str, final_spread: float, expired_at: str, orig: dict):
+        """On expiry: remove from active_opportunities, upsert into expired_opportunities."""
+        if not self._db_available:
+            return
+        self._reconnect_if_needed()
+        if not self._db_available:
+            return
+        try:
+            today = datetime.now(IST).date()
+            with self._lock:
+                with self._conn.cursor() as cur:
+                    cur.execute("DELETE FROM active_opportunities WHERE id = %s", (f"ws-{sym}",))
+                    cur.execute(
+                        """
+                        INSERT INTO expired_opportunities
+                        (id, date, sym, initial_spread, current_spread, final_spread, discount,
+                         age_sec, last_updated, expired_at, status)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, 0, %s, %s, 'Expired')
+                        ON CONFLICT (id) DO UPDATE SET
+                            date = EXCLUDED.date,
+                            final_spread = EXCLUDED.final_spread,
+                            expired_at = EXCLUDED.expired_at,
+                            status = 'Expired'
+                        """,
+                        (f"ws-{sym}", today, sym, orig.get("initial_spread"),
+                         final_spread, final_spread, orig.get("discount_pct"),
+                         expired_at, expired_at),
+                    )
+            self._rows_written_today += 1
+        except Exception as e:
+            self._write_errors += 1
+            log.error(f"DB expire move failed for {sym}: {e}")
 
     def log_db_health(self):
         """Log DB health status every 15 minutes. Call from main loop."""
