@@ -471,7 +471,7 @@ class DatabaseLayer:
     def log_alert_event(self, event_type: str, sym: str, ts: str, discount=None,
                         spread=None, initial_spread=None, final_spread=None,
                         trigger_count=None, current_fut_ltp=None, next_fut_ltp=None):
-        """Append one FIRED/EXPIRED event to alert_events (append-only, never cleaned)."""
+        """Append one FIRED event or close the open EXPIRED event (1-row-per-episode)."""
         if not self._db_available:
             return
         self._reconnect_if_needed()
@@ -481,16 +481,31 @@ class DatabaseLayer:
             today = datetime.now(IST).date()
             with self._lock:
                 with self._conn.cursor() as cur:
-                    cur.execute(
-                        """
-                        INSERT INTO alert_events
-                        (date, event, sym, discount, spread, initial_spread, final_spread,
-                         trigger_count, current_fut_ltp, next_fut_ltp, event_timestamp)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """,
-                        (today, event_type, sym, discount, spread, initial_spread,
-                         final_spread, trigger_count, current_fut_ltp, next_fut_ltp, ts),
-                    )
+                    if event_type == "FIRED":
+                        cur.execute(
+                            """
+                            INSERT INTO alert_events
+                            (date, event, sym, discount, spread, initial_spread, final_spread,
+                             trigger_count, current_fut_ltp, next_fut_ltp, event_timestamp)
+                            VALUES (%s, 'FIRED', %s, %s, %s, %s, NULL, %s, %s, %s, %s)
+                            """,
+                            (today, sym, discount, spread, initial_spread,
+                             trigger_count, current_fut_ltp, next_fut_ltp, ts),
+                        )
+                    else:  # EXPIRED — close the most recent open row for this stock
+                        cur.execute(
+                            """
+                            UPDATE alert_events
+                            SET final_spread = %s
+                            WHERE id = (
+                                SELECT id FROM alert_events
+                                WHERE sym = %s AND final_spread IS NULL
+                                ORDER BY event_timestamp DESC
+                                LIMIT 1
+                            )
+                            """,
+                            (final_spread, sym),
+                        )
             self._rows_written_today += 1
         except Exception as e:
             self._write_errors += 1
