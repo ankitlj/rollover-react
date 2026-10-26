@@ -4,7 +4,6 @@ import { useStore } from '../store';
 import { STOCKS } from '../data';
 
 const SYM_MAP: Record<string, string> = { INDUSINDBK: 'INDUSINDBANK' };
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function resolveSym(sym: string): string {
   return SYM_MAP[sym] || sym;
