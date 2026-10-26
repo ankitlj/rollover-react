@@ -67,8 +67,27 @@ function getNextMonthStr(): string {
 }
 
 export default function AlgoConnection() {
-  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend, setExpiries, takePendingActiveAlerts } = useStore();
+  const { setAlerts, setApiStatus, setMarketOpen, setCurrentMonth, setNextMonth, addToast, loadDataFromBackend, saveToBackend, setExpiries, takePendingActiveAlerts, muted } = useStore();
   const prevAlertsRef = useRef<Map<string, number>>(new Map());
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playBeep = useCallback(() => {
+    if (muted) return;
+    try {
+      if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+      const ctx = audioCtxRef.current;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.25);
+    } catch { /* audio not available */ }
+  }, [muted]);
 
   useEffect(() => {
     setCurrentMonth(getCurrentMonthStr());
@@ -257,8 +276,9 @@ export default function AlgoConnection() {
       }];
     });
     addToast('info', `Alert: ${resolved}`);
+    playBeep();
     prevAlertsRef.current.set(resolved, data.discount_pct);
-  }, [setAlerts, addToast]);
+  }, [setAlerts, addToast, playBeep]);
 
   const onAlertExpired = useCallback((data: WsAlertExpiredData) => {
     const resolved = resolveSym(data.stock);

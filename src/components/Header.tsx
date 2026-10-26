@@ -2,7 +2,7 @@ import { useStore } from '../store';
 import HealthStrip from './HealthStrip';
 
 export default function Header() {
-  const { currentTheme, toggleTheme, currentUser, apiStatus, logout } = useStore();
+  const { currentTheme, toggleTheme, muted, toggleMute, currentUser, apiStatus, logout } = useStore();
 
   const statusLabel = apiStatus === 'connected' ? 'Connected' : apiStatus === 'reconnecting' ? 'Reconnecting' : 'Disconnected';
   const statusClass = apiStatus === 'connected' ? 'status-connected' : apiStatus === 'reconnecting' ? 'status-reconnecting' : 'status-disconnected';
@@ -20,6 +20,9 @@ export default function Header() {
         <HealthStrip />
         <span className={`header-conn-status ${statusClass}`}>{statusLabel}</span>
         <span className="header-user">{currentUser}</span>
+        <button className="theme-btn mute-btn" onClick={toggleMute} title={muted ? 'Unmute alerts' : 'Mute alerts'}>
+          {muted ? '\u{1F507}' : '\u{1F50A}'}
+        </button>
         <button className="theme-btn" onClick={toggleTheme}>
           {currentTheme === 'dark' ? 'Light' : 'Dark'}
         </button>

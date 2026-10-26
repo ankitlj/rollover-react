@@ -13,6 +13,7 @@ interface StoreState {
   stockOverrides: Record<string, Partial<Stock>>;
   currentPage: PageId;
   currentTheme: 'dark' | 'light';
+  muted: boolean;
   currentUser: string;
   toasts: Toast[];
   notifications: Notification[];
@@ -29,6 +30,7 @@ interface StoreState {
 interface StoreActions {
   setCurrentPage: (page: PageId) => void;
   toggleTheme: () => void;
+  toggleMute: () => void;
   login: (user: string, pass: string) => boolean;
   logout: () => void;
   completeTransition: () => void;
@@ -73,6 +75,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
   const [currentPage, setCurrentPage] = useState<PageId>('alerts');
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
+  const [muted, setMuted] = useState(() => localStorage.getItem('rs-muted') === '1');
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const s = sessionStorage.getItem('rs-session');
@@ -250,6 +253,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setCurrentTheme(prev => {
       const next = prev === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
+      return next;
+    });
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setMuted(prev => {
+      const next = !prev;
+      localStorage.setItem('rs-muted', next ? '1' : '0');
       return next;
     });
   }, []);
@@ -490,9 +501,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value = {
     alerts, logEntries, corrections, finalisedDays, settings, stockOverrides, resolvedStocks,
-    currentPage, currentTheme, currentUser, toasts, notifications,
+    currentPage, currentTheme, muted, currentUser, toasts, notifications,
     isLoggedIn, showTransition, apiStatus, marketOpen, currentMonth, nextMonth, expiryCur, expiryNext,
-    setCurrentPage, toggleTheme, login, logout, completeTransition, loadDataFromBackend,
+    setCurrentPage, toggleTheme, toggleMute, login, logout, completeTransition, loadDataFromBackend,
     saveToBackend, saveSettingsToBackend,
     sendInstruction, saveEod, saveCorrection, addCorrectionBatch, finaliseDay,
     finaliseEntry, updateDealerRemarks, setStatus, updateLogField,
